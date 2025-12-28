@@ -1,0 +1,41 @@
+# IntelliJ IDEA / Android Studio
+*.iml
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+.local.properties
+.idea/
+
+# macOS
+.DS_Store
+
+# Android Files
+local.properties
+
+# Signing keys
+*.jks
+*.keystore
+
+# Firebase
+google-services.json
+.firebaserc
+.firebase/
+firebase-debug.log
+
+# Environment files
+.env
+secret.properties
+
+# Kotlin
+.kotlin/
+*.apk
+*.aab
+
+# Node.js (for Cloud Functions)
+node_modules/
+
+# Release artifacts
+app/release/
+output-metadata.json
