@@ -20,6 +20,7 @@ class FirebaseExpirationStorage {
                     "https://mrtv-simi-default-rtdb.europe-west1.firebasedatabase.app"
             )
     private val remindersRef = database.getReference("expiration_reminders")
+    private val threatsRef = database.getReference("expiration_risks")
 
     /**
      * Real-time flow of all reminders from Firebase. Updates automatically when data changes on any
@@ -55,6 +56,50 @@ class FirebaseExpirationStorage {
         awaitClose { remindersRef.removeEventListener(listener) }
     }
 
+    val threats: Flow<List<ua.entaytion.simi.data.model.ExpirationThreat>> = callbackFlow {
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<ua.entaytion.simi.data.model.ExpirationThreat>()
+                for (child in snapshot.children) {
+                    try {
+                        val id = child.child("id").getValue(String::class.java) ?: ""
+                        val name = child.child("name").getValue(String::class.java) ?: ""
+                        val matrixStr = child.child("matrix").getValue(String::class.java) ?: "FRESH"
+                        val expirationDate = child.child("expirationDate").getValue(Long::class.java) ?: 0L
+                        val isResolved = child.child("isResolved").getValue(Boolean::class.java) ?: false
+                        val resolvedAt = child.child("resolvedAt").getValue(Long::class.java)
+                        val addedAt = child.child("addedAt").getValue(Long::class.java) ?: System.currentTimeMillis()
+
+                        val matrix = try {
+                            ua.entaytion.simi.utils.ProductMatrix.valueOf(matrixStr)
+                        } catch (e: Exception) {
+                            ua.entaytion.simi.utils.ProductMatrix.FRESH
+                        }
+
+                        list.add(ua.entaytion.simi.data.model.ExpirationThreat(
+                            id = id,
+                            name = name,
+                            matrix = matrix,
+                            expirationDate = expirationDate,
+                            isResolved = isResolved,
+                            resolvedAt = resolvedAt,
+                            addedAt = addedAt
+                        ))
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                trySend(list)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                trySend(emptyList())
+            }
+        }
+        threatsRef.addValueEventListener(listener)
+        awaitClose { threatsRef.removeEventListener(listener) }
+    }
+
     suspend fun addReminder(item: ExpirationReminder) {
         val firebaseItem = ExpirationReminderFirebase.fromExpirationReminder(item)
         remindersRef.child(item.id).setValue(firebaseItem).await()
@@ -69,7 +114,6 @@ class FirebaseExpirationStorage {
         remindersRef.child(id).removeValue().await()
     }
 }
-
 /**
  * Firebase-compatible data class (needs default constructor and mutable properties for Firebase)
  */

@@ -3,16 +3,20 @@ package ua.entaytion.simi.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import ua.entaytion.simi.R
 import com.google.firebase.database.FirebaseDatabase
 import ua.entaytion.simi.data.model.UserMode
 import ua.entaytion.simi.viewmodel.SettingsViewModel
+import ua.entaytion.simi.ui.components.MenuContainer
+import ua.entaytion.simi.ui.components.MenuRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,7 +24,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
     val state by viewModel.settingsState.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
-    var debugClickCount by remember { mutableStateOf(0) }
+    var debugClickCount by remember { mutableIntStateOf(0) }
     var showDebugDialog by remember { mutableStateOf(false) }
 
     if (showDebugDialog) {
@@ -94,12 +98,12 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
 
     Scaffold(
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                         title = {
                             Text(
                                     "Налаштування",
                                     modifier =
-                                            Modifier.padding(8.dp).clickable(
+                                            Modifier.clickable(
                                                             interactionSource =
                                                                     remember {
                                                                         MutableInteractionSource()
@@ -117,7 +121,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        painter = painterResource(id = ua.entaytion.simi.R.drawable.ic_back),
                                         contentDescription = "Назад"
                                 )
                             }
@@ -126,77 +130,84 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
             }
     ) { innerPadding ->
         Column(
-                modifier = Modifier.padding(innerPadding).fillMaxSize().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Theme Switcher
             state?.let { currentState ->
-                Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "Темна тема", style = MaterialTheme.typography.titleMedium)
-                    Switch(
-                            checked = currentState.isDarkTheme,
-                            onCheckedChange = { viewModel.setDarkTheme(it) }
+                
+                // Theme
+                MenuContainer {
+                    val isDark = currentState.isDarkTheme
+                    MenuRow(
+                        title = "Темна тема",
+                        iconRes = if (isDark) ua.entaytion.simi.R.drawable.ic_dark_mode else ua.entaytion.simi.R.drawable.ic_light_mode,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        onClick = { viewModel.setDarkTheme(!isDark) },
+                        endContent = {
+                            Switch(
+                                checked = isDark,
+                                onCheckedChange = { viewModel.setDarkTheme(it) }
+                            )
+                        }
                     )
                 }
 
-                HorizontalDivider()
-
-                // User Mode
-                Text(text = "Режим користувача", style = MaterialTheme.typography.titleMedium)
-
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ModeOption(
-                            title = "Новачок",
-                            description = "Каса, Чек-ліст, Донати, Хот-доги",
-                            isSelected = currentState.userMode == UserMode.NEWBIE,
-                            onClick = { viewModel.setUserMode(UserMode.NEWBIE) }
-                    )
-                    ModeOption(
-                            title = "Досвідчений",
-                            description = "Загроза протерміну, Каса, Нагадування протерміну",
-                            isSelected = currentState.userMode == UserMode.EXPERIENCED,
-                            onClick = { viewModel.setUserMode(UserMode.EXPERIENCED) }
-                    )
-                    ModeOption(
-                            title = "Мені байдуже",
-                            description = "Всі функції доступні",
-                            isSelected = currentState.userMode == UserMode.INDIFFERENT,
-                            onClick = { viewModel.setUserMode(UserMode.INDIFFERENT) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ModeOption(title: String, description: String, isSelected: Boolean, onClick: () -> Unit) {
-    Card(
-            onClick = onClick,
-            colors =
-                    CardDefaults.cardColors(
-                            containerColor =
-                                    if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                                    else MaterialTheme.colorScheme.surfaceVariant
-                    ),
-            modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                RadioButton(selected = isSelected, onClick = onClick)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = title, style = MaterialTheme.typography.titleSmall)
-            }
-            if (description.isNotEmpty()) {
                 Text(
-                        text = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(start = 40.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "Режим користувача",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 12.dp)
+                )
+
+                // User Mode Options
+                MenuContainer {
+                    val modes = listOf(
+                        Triple(UserMode.NEWBIE, "Новачок", "Каса, Чек-ліст, Донати, Хот-доги"),
+                        Triple(UserMode.EXPERIENCED, "Досвідчений", "Загроза протерміну, Каса, Нагадування протерміну"),
+                        Triple(UserMode.INDIFFERENT, "Мені байдуже", "Всі функції доступні")
+                    )
+
+                    modes.forEachIndexed { index, (mode, title, desc) ->
+                        val isSelected = currentState.userMode == mode
+                        MenuRow(
+                            title = title,
+                            iconRes = ua.entaytion.simi.R.drawable.ic_person,
+                            iconTint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            onClick = { viewModel.setUserMode(mode) },
+                            endContent = {
+                                if (isSelected) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_ok),
+                                        contentDescription = "Вибрано",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        )
+                        if (index < modes.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 56.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
+                
+                // Description for selected mode
+                val selectedDesc = when(currentState.userMode) {
+                    UserMode.NEWBIE -> "Режим для новачків: фокусуємось на основних операціях."
+                    UserMode.EXPERIENCED -> "Режим для досвідчених: контроль термінів та каси."
+                    UserMode.INDIFFERENT -> "Повний доступ до всіх функцій."
+                }
+                
+                Text(
+                    text = selectedDesc,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 12.dp)
                 )
             }
         }

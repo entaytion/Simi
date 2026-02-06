@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,6 +26,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,6 +34,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
+import ua.entaytion.simi.R
 
 data class MonthlyDatePickerState(val selectedDate: LocalDate, val visibleMonth: YearMonth)
 
@@ -75,7 +74,7 @@ fun MonthlyDatePicker(
             ) {
                 IconButton(onClick = onPreviousMonth, enabled = canGoPrevious) {
                     Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            painter = painterResource(id = R.drawable.ic_back),
                             contentDescription = "Попередній місяць",
                             modifier = Modifier.alpha(if (canGoPrevious) 1f else 0.35f)
                     )
@@ -90,7 +89,7 @@ fun MonthlyDatePicker(
 
                 IconButton(onClick = onNextMonth) {
                     Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            painter = painterResource(id = R.drawable.ic_forward),
                             contentDescription = "Наступний місяць"
                     )
                 }
