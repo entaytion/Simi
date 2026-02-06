@@ -18,8 +18,46 @@ class ExpirationWorker(context: Context, workerParams: WorkerParameters) :
         override suspend fun doWork(): Result {
                 val storage = FirebaseExpirationStorage()
                 val reminders = storage.reminders.first()
+                val threats = storage.threats.first()
                 val today = System.currentTimeMillis()
 
+                // 1. Check Threats (from ExpirationScreen)
+                threats.forEach { threat ->
+                    if (threat.isResolved) return@forEach
+
+                    val threatDate = java.time.Instant.ofEpochMilli(threat.expirationDate)
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDate()
+                    val todayDate = java.time.LocalDate.now()
+                    
+                    val daysRemaining = java.time.temporal.ChronoUnit.DAYS.between(todayDate, threatDate)
+                    val discount = ua.entaytion.simi.utils.ExpirationUtils.discountFor(threat.matrix, daysRemaining)
+
+                    if (daysRemaining <= 0) {
+                        sendNotification(
+                            threat.id.hashCode(),
+                            "Протерміновано!",
+                            "Товар: ${threat.name}. ТЕРМІНОВО СПИСАТИ!"
+                        )
+                    } else if (discount != null) {
+                        val isApplied = when(discount) {
+                            10 -> threat.isDiscount10Applied
+                            25 -> threat.isDiscount25Applied
+                            50 -> threat.isDiscount50Applied
+                            else -> false
+                        }
+                        
+                        if (!isApplied) {
+                            sendNotification(
+                                threat.id.hashCode(),
+                                "Потрібна дія: ${discount}%",
+                                "Товар: ${threat.name}. Наклейте знижку ${discount}% або перевірте стан."
+                            )
+                        }
+                    }
+                }
+
+                // 2. Check Reminders
                 reminders.forEach { item ->
                         // Check if active
                         if (item.isWrittenOff) return@forEach

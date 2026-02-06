@@ -11,26 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Brightness4
-import androidx.compose.material.icons.filled.Brightness7
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -88,7 +69,7 @@ fun HotDogsScreen(
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        painter = painterResource(id = R.drawable.ic_back),
                                         contentDescription = "Назад"
                                 )
                             }
@@ -96,9 +77,7 @@ fun HotDogsScreen(
                         actions = {
                             IconButton(onClick = onToggleTheme) {
                                 Icon(
-                                        imageVector =
-                                                if (isDarkTheme) Icons.Filled.Brightness4
-                                                else Icons.Filled.Brightness7,
+                                        painter = painterResource(id = if (isDarkTheme) R.drawable.ic_dark_mode else R.drawable.ic_light_mode),
                                         contentDescription = "Тема"
                                 )
                             }
@@ -247,7 +226,7 @@ private fun HotDogItem(
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
                     Icon(
-                            imageVector = Icons.Default.Delete,
+                            painter = painterResource(id = R.drawable.ic_delete),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.error
                     )

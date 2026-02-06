@@ -22,26 +22,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import ua.entaytion.simi.ui.CashBalanceScreen
 import ua.entaytion.simi.ui.ChecklistScreen
 import ua.entaytion.simi.ui.DonutsScreen
 import ua.entaytion.simi.ui.ExpirationScreen
 import ua.entaytion.simi.ui.HomeScreen
 import ua.entaytion.simi.ui.HotDogsScreen
-import ua.entaytion.simi.ui.SettingsScreen
 import ua.entaytion.simi.ui.theme.SimiTheme
 import ua.entaytion.simi.viewmodel.ChecklistViewModel
 import ua.entaytion.simi.viewmodel.DonutsViewModel
 import ua.entaytion.simi.viewmodel.HotDogsViewModel
-import ua.entaytion.simi.viewmodel.SettingsViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -92,25 +88,23 @@ class MainActivity : ComponentActivity() {
         }
 
         private fun createNotificationChannel() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        val channelId = "expiration_channel"
-                        val channelName = "Нагадування протерміну"
-                        val channelDescription =
-                                "Сповіщення про термін придатності товарів та знижки"
-                        val importance = NotificationManager.IMPORTANCE_HIGH
+                val channelId = "expiration_channel"
+                val channelName = "Нагадування протерміну"
+                val channelDescription =
+                        "Сповіщення про термін придатності товарів та знижки"
+                val importance = NotificationManager.IMPORTANCE_HIGH
 
-                        val channel =
-                                NotificationChannel(channelId, channelName, importance).apply {
-                                        description = channelDescription
-                                        enableLights(true)
-                                        enableVibration(true)
-                                }
+                val channel =
+                        NotificationChannel(channelId, channelName, importance).apply {
+                                description = channelDescription
+                                enableLights(true)
+                                enableVibration(true)
+                        }
 
-                        val notificationManager =
-                                getSystemService(Context.NOTIFICATION_SERVICE) as
-                                        NotificationManager
-                        notificationManager.createNotificationChannel(channel)
-                }
+                val notificationManager =
+                        getSystemService(Context.NOTIFICATION_SERVICE) as
+                                NotificationManager
+                notificationManager.createNotificationChannel(channel)
         }
 
         private fun setupFirebaseNotificationListener() {
@@ -145,13 +139,6 @@ class MainActivity : ComponentActivity() {
                                                         .getValue(String::class.java)
                                                         ?: ""
 
-                                        ua.entaytion.simi.worker.ExpirationWorker
-                                                .sendCustomNotification(
-                                                        this@MainActivity,
-                                                        title,
-                                                        message
-                                                )
-
                                         // Зберегти що це сповіщення вже показано
                                         prefs.edit().putLong("last_shown_sent_at", sentAt).apply()
                                 }
@@ -166,16 +153,24 @@ class MainActivity : ComponentActivity() {
         }
 
         private fun scheduleExpirationWorker() {
+                scheduleWorkerAt(7, 0, "expiration_check_morning")
+                scheduleWorkerAt(22, 0, "expiration_check_evening")
+
+                // Підписка на глобальні сповіщення
+                com.google.firebase.messaging.FirebaseMessaging.getInstance()
+                        .subscribeToTopic("simi_all")
+        }
+
+        private fun scheduleWorkerAt(hour: Int, minute: Int, uniqueName: String) {
                 val workManager = androidx.work.WorkManager.getInstance(applicationContext)
 
                 val now = java.util.Calendar.getInstance()
-                val target =
-                        java.util.Calendar.getInstance().apply {
-                                set(java.util.Calendar.HOUR_OF_DAY, 22)
-                                set(java.util.Calendar.MINUTE, 30)
-                                set(java.util.Calendar.SECOND, 0)
-                                set(java.util.Calendar.MILLISECOND, 0)
-                        }
+                val target = java.util.Calendar.getInstance().apply {
+                        set(java.util.Calendar.HOUR_OF_DAY, hour)
+                        set(java.util.Calendar.MINUTE, minute)
+                        set(java.util.Calendar.SECOND, 0)
+                        set(java.util.Calendar.MILLISECOND, 0)
+                }
 
                 if (target.before(now)) {
                         target.add(java.util.Calendar.DAY_OF_YEAR, 1)
@@ -183,27 +178,22 @@ class MainActivity : ComponentActivity() {
 
                 val initialDelay = target.timeInMillis - now.timeInMillis
 
-                val request =
-                        androidx.work.PeriodicWorkRequestBuilder<
-                                        ua.entaytion.simi.worker.ExpirationWorker>(
-                                        1,
-                                        java.util.concurrent.TimeUnit.DAYS
-                                )
-                                .setInitialDelay(
-                                        initialDelay,
-                                        java.util.concurrent.TimeUnit.MILLISECONDS
-                                )
-                                .build()
+                val request = androidx.work.PeriodicWorkRequestBuilder<ua.entaytion.simi.worker.ExpirationWorker>(
+                        1, java.util.concurrent.TimeUnit.DAYS
+                )
+                        .setInitialDelay(initialDelay, java.util.concurrent.TimeUnit.MILLISECONDS)
+                        .setConstraints(
+                                androidx.work.Constraints.Builder()
+                                        .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                                        .build()
+                        )
+                        .build()
 
                 workManager.enqueueUniquePeriodicWork(
-                        "expiration_check",
+                        uniqueName,
                         androidx.work.ExistingPeriodicWorkPolicy.UPDATE,
                         request
                 )
-
-                // Підписка на глобальні сповіщення
-                com.google.firebase.messaging.FirebaseMessaging.getInstance()
-                        .subscribeToTopic("simi_all")
         }
 }
 
@@ -216,7 +206,8 @@ private enum class Route {
         HotDogs,
         Settings,
         ExpirationNotifications,
-        ExpirationManagement
+        ExpirationManagement,
+        DateCalculator
 }
 
 @Composable
@@ -320,9 +311,9 @@ private fun App(isDarkTheme: Boolean) {
                                 onOpenChecklist = { navigate(Route.Checklist) },
                                 onOpenDonuts = { navigate(Route.Donuts) },
                                 onOpenHotDogs = { navigate(Route.HotDogs) },
-                                onOpenExpirationReminder = { navigate(Route.ExpirationManagement) },
                                 onOpenNotifications = { navigate(Route.ExpirationNotifications) },
                                 onOpenSettings = { navigate(Route.Settings) },
+                                onOpenDateCalculator = { navigate(Route.DateCalculator) },
                                 userMode = userMode,
                                 isDarkTheme = isDarkTheme,
                                 pendingNotificationsCount = pendingCount
@@ -385,6 +376,9 @@ private fun App(isDarkTheme: Boolean) {
                                 isDarkTheme = isDarkTheme,
                                 onToggleTheme = { settingsViewModel.setDarkTheme(!isDarkTheme) }
                         )
+                }
+                Route.DateCalculator -> {
+                        ua.entaytion.simi.ui.DateCalculatorScreen(onBack = { goBack() })
                 }
         }
 }

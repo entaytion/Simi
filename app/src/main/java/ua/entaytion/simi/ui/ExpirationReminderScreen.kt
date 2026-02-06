@@ -3,19 +3,13 @@ package ua.entaytion.simi.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import ua.entaytion.simi.R
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,7 +47,7 @@ fun ExpirationNotificationsScreen(onBack: () -> Unit, viewModel: ExpirationRemin
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        painter = painterResource(id = R.drawable.ic_back),
                                         contentDescription = "Назад"
                                 )
                             }
@@ -77,7 +71,7 @@ fun ExpirationNotificationsScreen(onBack: () -> Unit, viewModel: ExpirationRemin
                             onCheck = {
                                 val today = System.currentTimeMillis()
                                 if (today >= item.finalDate) {
-                                    viewModel.markWrittenOff(item.id)
+                                    viewModel.deleteReminder(item.id)
                                 } else if (item.discount50Date != null &&
                                                 today >= item.discount50Date &&
                                                 !item.isDiscount50Applied
@@ -118,7 +112,7 @@ fun ExpirationManagementScreen(onBack: () -> Unit, viewModel: ExpirationReminder
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        painter = painterResource(id = R.drawable.ic_back),
                                         contentDescription = "Назад"
                                 )
                             }
@@ -127,7 +121,7 @@ fun ExpirationManagementScreen(onBack: () -> Unit, viewModel: ExpirationReminder
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = { isAdding = true }) {
-                    Icon(Icons.Default.Add, contentDescription = "Додати")
+                    Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription = "Додати")
                 }
             }
     ) { innerPadding ->
@@ -229,14 +223,14 @@ fun ExpirationNotificationItemCard(
             Row {
                 IconButton(onClick = onCheck) {
                     Icon(
-                            Icons.Default.Check,
+                            painter = painterResource(id = R.drawable.ic_ok),
                             contentDescription = "Виконано",
                             tint = androidx.compose.ui.graphics.Color(0xFF4CAF50)
                     )
                 }
                 IconButton(onClick = onClose) {
                     Icon(
-                            Icons.Default.Close,
+                            painter = painterResource(id = R.drawable.ic_close),
                             contentDescription = "Скасувати",
                             tint = MaterialTheme.colorScheme.error
                     )
@@ -264,7 +258,7 @@ fun ExpirationManagementItemCard(item: ExpirationReminder, onClick: () -> Unit) 
                 )
             }
             Icon(
-                    Icons.Default.Edit,
+                    painter = painterResource(id = R.drawable.ic_edit),
                     contentDescription = "Редагувати",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -310,7 +304,7 @@ fun AddEditExpirationReminderDialog(
                             readOnly = true,
                             trailingIcon = {
                                 IconButton(onClick = { showInitialPicker = true }) {
-                                    Icon(Icons.Default.DateRange, contentDescription = null)
+                                    Icon(painterResource(id = R.drawable.ic_calendar), contentDescription = null)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -323,7 +317,7 @@ fun AddEditExpirationReminderDialog(
                             readOnly = true,
                             trailingIcon = {
                                 IconButton(onClick = { showFinalPicker = true }) {
-                                    Icon(Icons.Default.DateRange, contentDescription = null)
+                                    Icon(painterResource(id = R.drawable.ic_calendar), contentDescription = null)
                                 }
                             },
                             isError = finalDate == null,
@@ -336,7 +330,7 @@ fun AddEditExpirationReminderDialog(
                     if (onDelete != null) {
                         IconButton(onClick = onDelete) {
                             Icon(
-                                    Icons.Default.Delete,
+                                    painter = painterResource(id = ua.entaytion.simi.R.drawable.ic_delete),
                                     contentDescription = "Видалити",
                                     tint = MaterialTheme.colorScheme.error
                             )

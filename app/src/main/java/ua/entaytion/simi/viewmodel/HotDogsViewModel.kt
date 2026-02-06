@@ -35,14 +35,12 @@ class HotDogsViewModel : ViewModel() {
         val days =
                 when (type) {
                     HotDogType.DeFrost -> {
-                        if (name.contains("Швейцарські", true) ||
-                                        name.contains("Зальцбурзькі", true)
-                        )
+                        if (name.contains("Швейцарські", true) || name.contains("італійські", true))
                                 5
-                        else 2
+                        else if (name.contains("булка", true)) 1 else 2
                     }
                     HotDogType.Container -> {
-                        if (name.contains("Зальцбурзькі", true)) 2 else 1
+                        if (name.contains("італійські", true)) 2 else 1
                     }
                 }
 
