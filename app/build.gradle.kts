@@ -23,8 +23,8 @@ android {
         applicationId = "ua.entaytion.simi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.2-RC3"
+        versionCode = 5
+        versionName = "1.2-RC4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         

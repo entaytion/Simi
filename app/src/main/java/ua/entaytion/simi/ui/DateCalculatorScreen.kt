@@ -57,24 +57,39 @@ fun DateCalculatorScreen(onBack: () -> Unit) {
                 onDateSelected = { selectedDate = it }
             )
 
-            // Result Header
-            Text(
-                "Якщо товар спливає ${selectedDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))}:",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
             // Calculations
             val daysLeft = ExpirationUtils.daysBetween(
                 today,
                 selectedDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
             )
 
+            val daysLeftText = when {
+                daysLeft == null -> "невідомо"
+                daysLeft > 0 -> "залишилось $daysLeft днів"
+                daysLeft < 0 -> "протерміновано на ${kotlin.math.abs(daysLeft)} днів"
+                else -> "спливає сьогодні"
+            }
+
+            // Result Header
+            Text(
+                "Різниця: $daysLeftText",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                "Якщо товар спливає ${selectedDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))}:",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
             MenuContainer {
-                ProductMatrix.values().forEachIndexed { index, matrix ->
+                val matrices = ProductMatrix.values().filter { it != ProductMatrix.PROHIBITED }
+                matrices.forEachIndexed { index, matrix ->
                     CalculatorRow(matrix, daysLeft)
                     
-                    if (index < ProductMatrix.values().size - 1) {
+                    if (index < matrices.size - 1) {
                          HorizontalDivider(
                              modifier = Modifier.padding(start = 16.dp),
                              color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)

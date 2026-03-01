@@ -29,13 +29,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModelProvider
 import ua.entaytion.simi.ui.CashBalanceScreen
-import ua.entaytion.simi.ui.ChecklistScreen
 import ua.entaytion.simi.ui.DonutsScreen
 import ua.entaytion.simi.ui.ExpirationScreen
 import ua.entaytion.simi.ui.HomeScreen
 import ua.entaytion.simi.ui.HotDogsScreen
 import ua.entaytion.simi.ui.theme.SimiTheme
-import ua.entaytion.simi.viewmodel.ChecklistViewModel
 import ua.entaytion.simi.viewmodel.DonutsViewModel
 import ua.entaytion.simi.viewmodel.HotDogsViewModel
 
@@ -201,7 +199,6 @@ private enum class Route {
         Home,
         Expiration,
         CashBalance,
-        Checklist,
         Donuts,
         HotDogs,
         Settings,
@@ -308,7 +305,6 @@ private fun App(isDarkTheme: Boolean) {
                         HomeScreen(
                                 onOpenExpiration = { navigate(Route.Expiration) },
                                 onOpenCashBalance = { navigate(Route.CashBalance) },
-                                onOpenChecklist = { navigate(Route.Checklist) },
                                 onOpenDonuts = { navigate(Route.Donuts) },
                                 onOpenHotDogs = { navigate(Route.HotDogs) },
                                 onOpenNotifications = { navigate(Route.ExpirationNotifications) },
@@ -347,18 +343,6 @@ private fun App(isDarkTheme: Boolean) {
                                 isDarkTheme = isDarkTheme,
                                 onToggleTheme = { settingsViewModel.setDarkTheme(!isDarkTheme) }
                         )
-                Route.Checklist -> {
-                        val vm =
-                                androidx.lifecycle.viewmodel.compose.viewModel<ChecklistViewModel>(
-                                        factory = ChecklistViewModel.factory(LocalContext.current)
-                                )
-                        ChecklistScreen(
-                                onBack = { goBack() },
-                                viewModel = vm,
-                                isDarkTheme = isDarkTheme,
-                                onToggleTheme = { settingsViewModel.setDarkTheme(!isDarkTheme) }
-                        )
-                }
                 Route.Donuts -> {
                         val vm = androidx.lifecycle.viewmodel.compose.viewModel<DonutsViewModel>()
                         DonutsScreen(

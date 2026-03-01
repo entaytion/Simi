@@ -395,9 +395,17 @@ fun AddItemDialog(
 
                 val analyzedProduct by viewModel.analyzedProduct.collectAsState()
                 
+                var showProhibitedDialog by remember { mutableStateOf(false) }
+
                 // When analysis completes, update form
                 LaunchedEffect(analyzedProduct) {
                     analyzedProduct?.let {
+                        if (it.matrix == ProductMatrix.PROHIBITED) {
+                            showProhibitedDialog = true
+                            viewModel.clearAnalyzedResult()
+                            return@LaunchedEffect
+                        }
+
                         name = it.name
                         selectedMatrix = it.matrix
                         
@@ -413,6 +421,25 @@ fun AddItemDialog(
                             viewModel.clearAnalyzedResult()
                         }
                     }
+                }
+
+                if (showProhibitedDialog) {
+                    AlertDialog(
+                        onDismissRequest = {
+                            showProhibitedDialog = false
+                            isManualMode = true
+                        },
+                        title = { Text("Заборонений товар") },
+                        text = { Text("Вибачте, на цей товар не діє протермін.") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showProhibitedDialog = false
+                                isManualMode = true
+                            }) {
+                                Text("Зрозуміло")
+                            }
+                        }
+                    )
                 }
 
                 if (showDateSuggestions != null) {
@@ -444,8 +471,7 @@ fun AddItemDialog(
                                     isManualMode = true
                                     viewModel.clearAnalyzedResult()
                                 }, modifier = Modifier.fillMaxWidth()) {
-                                    Text("Ввести вручну")
-                                }
+                                    Text("Ввести вручну")                                }
                             }
                         },
                         confirmButton = {}
@@ -482,7 +508,7 @@ fun AddItemDialog(
                         Text("Категорія (Матриця)", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
                         
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                             ProductMatrix.values().forEach { matrix ->
+                             ProductMatrix.values().filter { it != ProductMatrix.PROHIBITED }.forEach { matrix ->
                                  MatrixOption(
                                      matrix = matrix,
                                      isSelected = selectedMatrix == matrix,
@@ -654,7 +680,7 @@ fun EditThreatDialog(
 
                     Text("Категорія (Матриця)", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ProductMatrix.values().forEach { matrix ->
+                        ProductMatrix.values().filter { it != ProductMatrix.PROHIBITED }.forEach { matrix ->
                             MatrixOption(
                                 matrix = matrix,
                                 isSelected = selectedMatrix == matrix,

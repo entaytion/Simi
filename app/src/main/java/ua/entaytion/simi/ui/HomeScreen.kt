@@ -24,7 +24,6 @@ import ua.entaytion.simi.ui.components.MenuRow
 fun HomeScreen(
         onOpenExpiration: () -> Unit,
         onOpenCashBalance: () -> Unit,
-        onOpenChecklist: () -> Unit,
         onOpenDonuts: () -> Unit,
         onOpenHotDogs: () -> Unit,
         onOpenNotifications: () -> Unit,
@@ -59,14 +58,6 @@ fun HomeScreen(
                                 onOpenCashBalance,
                                 setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
                                 HomeGroup.FINANCE
-                        ),
-                        HomeItem(
-                                "Чек-ліст",
-                                R.drawable.ic_checklist,
-                                Color(0xFF2196F3),
-                                onOpenChecklist,
-                                setOf(UserMode.NEWBIE, UserMode.INDIFFERENT),
-                                HomeGroup.TASKS
                         ),
                         HomeItem(
                                 "Докласти донати",
