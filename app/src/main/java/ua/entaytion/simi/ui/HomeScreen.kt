@@ -1,23 +1,20 @@
 package ua.entaytion.simi.ui
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ua.entaytion.simi.R
 import ua.entaytion.simi.data.model.UserMode
 import ua.entaytion.simi.ui.components.MenuContainer
 import ua.entaytion.simi.ui.components.MenuRow
+import ua.entaytion.simi.ui.components.SimiIcons
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,6 +26,7 @@ fun HomeScreen(
         onOpenNotifications: () -> Unit,
         onOpenSettings: () -> Unit,
         onOpenDateCalculator: () -> Unit,
+        onOpenDefrostCalculator: () -> Unit,
         userMode: UserMode,
         isDarkTheme: Boolean,
         pendingNotificationsCount: Int = 0
@@ -37,7 +35,7 @@ fun HomeScreen(
                 listOf(
                         HomeItem(
                                 "Загроза протерміну",
-                                R.drawable.ic_expiration,
+                                SimiIcons.Expiration,
                                 Color(0xFFF44336),
                                 onOpenExpiration,
                                 setOf(UserMode.EXPERIENCED, UserMode.INDIFFERENT),
@@ -45,15 +43,23 @@ fun HomeScreen(
                         ),
                         HomeItem(
                                 "Калькулятор дат",
-                                R.drawable.ic_days_left,
+                                SimiIcons.DaysLeft,
                                 Color(0xFFE91E63),
                                 onOpenDateCalculator,
                                 setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
                                 HomeGroup.PRIORITY
                         ),
                         HomeItem(
+                                "Терміни дефростації",
+                                SimiIcons.DaysLeft,
+                                Color(0xFF00BCD4),
+                                onOpenDefrostCalculator,
+                                setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
+                                HomeGroup.PRIORITY
+                        ),
+                        HomeItem(
                                 "Вирівнювання готівки",
-                                R.drawable.ic_cash,
+                                SimiIcons.Cash,
                                 Color(0xFF4CAF50),
                                 onOpenCashBalance,
                                 setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
@@ -61,7 +67,7 @@ fun HomeScreen(
                         ),
                         HomeItem(
                                 "Докласти донати",
-                                R.drawable.ic_donut,
+                                SimiIcons.Donut,
                                 Color(0xFFFF9800),
                                 onOpenDonuts,
                                 setOf(UserMode.NEWBIE, UserMode.INDIFFERENT),
@@ -69,7 +75,7 @@ fun HomeScreen(
                         ),
                         HomeItem(
                                 "Докласти хот-доги",
-                                R.drawable.ic_hotdog,
+                                SimiIcons.HotDog,
                                 Color(0xFFFF5722),
                                 onOpenHotDogs,
                                 setOf(UserMode.NEWBIE, UserMode.INDIFFERENT),
@@ -116,10 +122,7 @@ fun HomeScreen(
                                                         }
                                                 ) {
                                                         Icon(
-                                                                painter =
-                                                                        painterResource(
-                                                                                R.drawable.ic_bell
-                                                                        ),
+                                                                imageVector = SimiIcons.Bell,
                                                                 contentDescription = "Сповіщення",
                                                                 tint =
                                                                         MaterialTheme.colorScheme
@@ -129,7 +132,7 @@ fun HomeScreen(
                                         }
                                         IconButton(onClick = onOpenSettings) {
                                                 Icon(
-                                                        painter = painterResource(id = R.drawable.ic_settings),
+                                                        imageVector = SimiIcons.Settings,
                                                         contentDescription = "Налаштування",
                                                         tint = MaterialTheme.colorScheme.onSurface
                                                 )
@@ -153,15 +156,15 @@ fun HomeScreen(
                                                 items.forEachIndexed { index, item ->
                                                         MenuRow(
                                                                 title = item.title,
-                                                                iconRes = item.iconRes,
+                                                                icon = item.icon,
                                                                 iconTint = item.accent,
                                                                 onClick = item.onTap,
                                                                 endContent = {
                                                                     Icon(
-                                                                        painter = painterResource(id = R.drawable.ic_back),
+                                                                        imageVector = SimiIcons.Forward,
                                                                         contentDescription = null,
                                                                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                                                        modifier = Modifier.size(20.dp).rotate(180f)
+                                                                        modifier = Modifier.size(20.dp)
                                                                     )
                                                                 }
                                                         )
@@ -175,7 +178,7 @@ fun HomeScreen(
                                         }
                                 }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(32.dp))
                 }
         }
@@ -190,7 +193,7 @@ private enum class HomeGroup {
 
 private data class HomeItem(
         val title: String,
-        @DrawableRes val iconRes: Int,
+        val icon: ImageVector,
         val accent: Color,
         val onTap: () -> Unit,
         val visibleFor: Set<UserMode>,

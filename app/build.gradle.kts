@@ -23,18 +23,33 @@ android {
         applicationId = "ua.entaytion.simi"
         minSdk = 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.2-RC4"
+        versionCode = 6
+        versionName = "1.2-RC5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val props = Properties()
+            val keystorePropsFile = rootProject.file("keystore.properties")
+            if (keystorePropsFile.exists()) {
+                props.load(FileInputStream(keystorePropsFile))
+            }
+            storeFile = file(props.getProperty("storeFile") ?: "release.jks")
+            storePassword = props.getProperty("storePassword") ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = props.getProperty("keyAlias") ?: System.getenv("KEY_ALIAS") ?: ""
+            keyPassword = props.getProperty("keyPassword") ?: System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
@@ -72,7 +87,8 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material3.expressive)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.gson)

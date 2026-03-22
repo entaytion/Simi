@@ -21,12 +21,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import ua.entaytion.simi.R
+import ua.entaytion.simi.ui.components.SimiIcons
 import ua.entaytion.simi.viewmodel.DonutsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +44,7 @@ fun DonutsScreen(
                                 "Веселих свят (лимон малина)",
                                 "Мандарин нектарин",
                                 "Pink з полуницею",
-                                "Рожевий з маршмелоу",
+                                "Pinkie з маршмелоу",
                                 "Cookies",
                                 "Конфеті Кенді",
                                 "Very cremy berry",
@@ -55,7 +54,7 @@ fun DonutsScreen(
                                 "Яблуко-кориця",
                                 "Карамелька",
                                 "Потрійний шоколад",
-                                "Хелоувін",
+                                "Лепрекон",
                                 "Вишневі обійми",
                                 "Малинова ніжність",
                                 "Love з полуничним смаком",
@@ -65,12 +64,12 @@ fun DonutsScreen(
                                 "Торт \"Вафельний\"",
                                 "Мафін \"Тірамісу\"",
                                 "Мафін \"Шоколадний\"",
-                                "Мафін \"вишневий\"",
-                                "Тістечко еклер зі згущеним молоком",
-                                "Тістечко еклер з заварним кремом",
-                                "Торт чізкейк \"Нью-Йорк\"",
-                                "Десерт \"Чізкейк\" з вишнею сакура",
-                                "Десерт \"Чізкейк\" солона карамель"
+                                "Мафін \"Вишневий\"",
+                                "Еклер зі згущеним молоком",
+                                "Еклер з заварним кремом",
+                                "Чізкейк \"Нью-Йорк\"",
+                                "Чізкейк \"Вишня (Сакура)\"",
+                                "Чізкейк \"Солона карамель\""
                         )
                         .distinct()
         }
@@ -94,7 +93,7 @@ fun DonutsScreen(
                                 navigationIcon = {
                                         IconButton(onClick = onBack) {
                                                 Icon(
-                                                        painter = painterResource(id = R.drawable.ic_back),
+                                                        imageVector = SimiIcons.Back,
                                                         contentDescription = "Назад"
                                                 )
                                         }
@@ -102,7 +101,7 @@ fun DonutsScreen(
                                 actions = {
                                         IconButton(onClick = onToggleTheme) {
                                                 Icon(
-                                                        painter = painterResource(id = if (isDarkTheme) R.drawable.ic_dark_mode else R.drawable.ic_light_mode),
+                                                        imageVector = if (isDarkTheme) SimiIcons.DarkMode else SimiIcons.LightMode,
                                                         contentDescription = "Перемкнути тему",
                                                         tint = MaterialTheme.colorScheme.onSurface
                                                 )
@@ -121,6 +120,7 @@ fun DonutsScreen(
                 ) {
                         Card(
                                 modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.extraLarge,
                                 colors =
                                         CardDefaults.cardColors(
                                                 containerColor =
@@ -136,10 +136,7 @@ fun DonutsScreen(
                                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                                         ) {
                                                 Icon(
-                                                        painter =
-                                                                painterResource(
-                                                                        id = R.drawable.ic_donut
-                                                                ),
+                                                        imageVector = SimiIcons.Donut,
                                                         contentDescription = null,
                                                         tint =
                                                                 MaterialTheme.colorScheme
@@ -223,12 +220,7 @@ fun DonutsScreen(
                                                                         onClick = {
                                                                                 selectedName = name
                                                                                 expanded = false
-                                                                                upsert(
-                                                                                        name,
-                                                                                        +1
-                                                                                ) // вибір = одразу
-                                                                                // додаємо 1 і
-                                                                                // ставимо дату
+                                                                                upsert(name, +1)
                                                                         }
                                                                 )
                                                         }
@@ -247,6 +239,7 @@ fun DonutsScreen(
                         if (entries.isNotEmpty()) {
                                 Card(
                                         modifier = Modifier.fillMaxWidth(),
+                                        shape = MaterialTheme.shapes.extraLarge,
                                         colors =
                                                 CardDefaults.cardColors(
                                                         containerColor =
@@ -265,7 +258,7 @@ fun DonutsScreen(
                                                                 Arrangement.spacedBy(10.dp)
                                                 ) {
                                                         Icon(
-                                                                painter = painterResource(id = R.drawable.ic_box),
+                                                                imageVector = SimiIcons.Box,
                                                                 contentDescription = null,
                                                                 tint =
                                                                         MaterialTheme.colorScheme
@@ -301,12 +294,7 @@ fun DonutsScreen(
                                                                                         .CenterVertically
                                                                 ) {
                                                                         Icon(
-                                                                                painter =
-                                                                                        painterResource(
-                                                                                                id =
-                                                                                                        R.drawable
-                                                                                                                .ic_donut
-                                                                                        ),
+                                                                                imageVector = SimiIcons.Donut,
                                                                                 contentDescription =
                                                                                         null,
                                                                                 tint =
@@ -361,7 +349,7 @@ fun DonutsScreen(
                                                                                 )
                                                                         }
 
-                                                                        IconButton(
+                                                                        FilledTonalIconButton(
                                                                                 onClick = {
                                                                                         upsert(
                                                                                                 entry.name,
@@ -370,13 +358,9 @@ fun DonutsScreen(
                                                                                 }
                                                                         ) {
                                                                                  Icon(
-                                                                                         painter = painterResource(id = R.drawable.ic_remove),
+                                                                                         imageVector = SimiIcons.Remove,
                                                                                          contentDescription =
-                                                                                                 "Мінус",
-                                                                                         tint =
-                                                                                                 MaterialTheme
-                                                                                                         .colorScheme
-                                                                                                         .onSurface
+                                                                                                 "Мінус"
                                                                                  )
                                                                         }
 
@@ -407,7 +391,7 @@ fun DonutsScreen(
                                                                                 )
                                                                         }
 
-                                                                        IconButton(
+                                                                        FilledTonalIconButton(
                                                                                 onClick = {
                                                                                         upsert(
                                                                                                 entry.name,
@@ -419,13 +403,9 @@ fun DonutsScreen(
                                                                                                 maxCountPerItem
                                                                         ) {
                                                                                  Icon(
-                                                                                         painter = painterResource(id = R.drawable.ic_add),
+                                                                                         imageVector = SimiIcons.Add,
                                                                                          contentDescription =
-                                                                                                 "Плюс",
-                                                                                         tint =
-                                                                                                 MaterialTheme
-                                                                                                         .colorScheme
-                                                                                                         .onSurface
+                                                                                                 "Плюс"
                                                                                  )
                                                                         }
                                                                 }

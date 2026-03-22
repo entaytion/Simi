@@ -19,12 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.format.DateTimeFormatter
-import ua.entaytion.simi.R
+import ua.entaytion.simi.ui.components.SimiIcons
 import ua.entaytion.simi.viewmodel.HotDogEntry
 import ua.entaytion.simi.viewmodel.HotDogType
 import ua.entaytion.simi.viewmodel.HotDogsViewModel
@@ -69,7 +68,7 @@ fun HotDogsScreen(
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        painter = painterResource(id = R.drawable.ic_back),
+                                        imageVector = SimiIcons.Back,
                                         contentDescription = "Назад"
                                 )
                             }
@@ -77,7 +76,7 @@ fun HotDogsScreen(
                         actions = {
                             IconButton(onClick = onToggleTheme) {
                                 Icon(
-                                        painter = painterResource(id = if (isDarkTheme) R.drawable.ic_dark_mode else R.drawable.ic_light_mode),
+                                        imageVector = if (isDarkTheme) SimiIcons.DarkMode else SimiIcons.LightMode,
                                         contentDescription = "Тема"
                                 )
                             }
@@ -95,6 +94,7 @@ fun HotDogsScreen(
         ) {
             Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge,
                     colors =
                             CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -109,7 +109,7 @@ fun HotDogsScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                                painter = painterResource(id = R.drawable.ic_hotdog),
+                                imageVector = SimiIcons.HotDog,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(24.dp)
@@ -163,7 +163,7 @@ fun HotDogsScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Button(
+                        FilledTonalButton(
                                 onClick = {
                                     if (selectedName.isNotBlank())
                                             viewModel.addEntry(selectedName, HotDogType.DeFrost)
@@ -171,7 +171,7 @@ fun HotDogsScreen(
                                 modifier = Modifier.weight(1f),
                                 enabled = selectedName.isNotBlank()
                         ) { Text("На дефрост") }
-                        Button(
+                        FilledTonalButton(
                                 onClick = {
                                     if (selectedName.isNotBlank())
                                             viewModel.addEntry(selectedName, HotDogType.Container)
@@ -204,6 +204,7 @@ private fun HotDogItem(
 ) {
     Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
             colors =
                     CardDefaults.cardColors(
                             containerColor =
@@ -226,7 +227,7 @@ private fun HotDogItem(
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
                     Icon(
-                            painter = painterResource(id = R.drawable.ic_delete),
+                            imageVector = SimiIcons.Delete,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.error
                     )

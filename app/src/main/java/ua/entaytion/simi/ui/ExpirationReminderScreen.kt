@@ -7,9 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import ua.entaytion.simi.R
+import ua.entaytion.simi.ui.components.SimiIcons
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -47,7 +46,7 @@ fun ExpirationNotificationsScreen(onBack: () -> Unit, viewModel: ExpirationRemin
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        painter = painterResource(id = R.drawable.ic_back),
+                                        imageVector = SimiIcons.Back,
                                         contentDescription = "Назад"
                                 )
                             }
@@ -112,7 +111,7 @@ fun ExpirationManagementScreen(onBack: () -> Unit, viewModel: ExpirationReminder
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        painter = painterResource(id = R.drawable.ic_back),
+                                        imageVector = SimiIcons.Back,
                                         contentDescription = "Назад"
                                 )
                             }
@@ -121,7 +120,7 @@ fun ExpirationManagementScreen(onBack: () -> Unit, viewModel: ExpirationReminder
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = { isAdding = true }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription = "Додати")
+                    Icon(imageVector = SimiIcons.Add, contentDescription = "Додати")
                 }
             }
     ) { innerPadding ->
@@ -223,14 +222,14 @@ fun ExpirationNotificationItemCard(
             Row {
                 IconButton(onClick = onCheck) {
                     Icon(
-                            painter = painterResource(id = R.drawable.ic_ok),
+                            imageVector = SimiIcons.Ok,
                             contentDescription = "Виконано",
                             tint = androidx.compose.ui.graphics.Color(0xFF4CAF50)
                     )
                 }
                 IconButton(onClick = onClose) {
                     Icon(
-                            painter = painterResource(id = R.drawable.ic_close),
+                            imageVector = SimiIcons.Close,
                             contentDescription = "Скасувати",
                             tint = MaterialTheme.colorScheme.error
                     )
@@ -258,7 +257,7 @@ fun ExpirationManagementItemCard(item: ExpirationReminder, onClick: () -> Unit) 
                 )
             }
             Icon(
-                    painter = painterResource(id = R.drawable.ic_edit),
+                    imageVector = SimiIcons.Edit,
                     contentDescription = "Редагувати",
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -304,7 +303,7 @@ fun AddEditExpirationReminderDialog(
                             readOnly = true,
                             trailingIcon = {
                                 IconButton(onClick = { showInitialPicker = true }) {
-                                    Icon(painterResource(id = R.drawable.ic_calendar), contentDescription = null)
+                                    Icon(SimiIcons.Calendar, contentDescription = null)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -317,7 +316,7 @@ fun AddEditExpirationReminderDialog(
                             readOnly = true,
                             trailingIcon = {
                                 IconButton(onClick = { showFinalPicker = true }) {
-                                    Icon(painterResource(id = R.drawable.ic_calendar), contentDescription = null)
+                                    Icon(SimiIcons.Calendar, contentDescription = null)
                                 }
                             },
                             isError = finalDate == null,
@@ -330,7 +329,7 @@ fun AddEditExpirationReminderDialog(
                     if (onDelete != null) {
                         IconButton(onClick = onDelete) {
                             Icon(
-                                    painter = painterResource(id = ua.entaytion.simi.R.drawable.ic_delete),
+                                    imageVector = SimiIcons.Delete,
                                     contentDescription = "Видалити",
                                     tint = MaterialTheme.colorScheme.error
                             )

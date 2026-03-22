@@ -26,7 +26,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,7 +33,6 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import ua.entaytion.simi.R
 
 data class MonthlyDatePickerState(val selectedDate: LocalDate, val visibleMonth: YearMonth)
 
@@ -74,7 +72,7 @@ fun MonthlyDatePicker(
             ) {
                 IconButton(onClick = onPreviousMonth, enabled = canGoPrevious) {
                     Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
+                            imageVector = SimiIcons.Back,
                             contentDescription = "Попередній місяць",
                             modifier = Modifier.alpha(if (canGoPrevious) 1f else 0.35f)
                     )
@@ -89,7 +87,7 @@ fun MonthlyDatePicker(
 
                 IconButton(onClick = onNextMonth) {
                     Icon(
-                            painter = painterResource(id = R.drawable.ic_forward),
+                            imageVector = SimiIcons.Forward,
                             contentDescription = "Наступний місяць"
                     )
                 }

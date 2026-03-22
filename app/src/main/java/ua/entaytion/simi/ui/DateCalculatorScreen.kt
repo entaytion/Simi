@@ -8,10 +8,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import ua.entaytion.simi.R
+import ua.entaytion.simi.ui.components.SimiIcons
 import ua.entaytion.simi.ui.components.MonthlyDatePicker
 import ua.entaytion.simi.ui.components.MonthlyDatePickerState
 import ua.entaytion.simi.ui.components.MenuContainer
@@ -35,7 +34,7 @@ fun DateCalculatorScreen(onBack: () -> Unit) {
                 title = { Text("Калькулятор дат") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(painterResource(id = R.drawable.ic_back), contentDescription = "Назад")
+                        Icon(imageVector = SimiIcons.Back, contentDescription = "Назад")
                     }
                 }
             )

@@ -204,7 +204,8 @@ private enum class Route {
         Settings,
         ExpirationNotifications,
         ExpirationManagement,
-        DateCalculator
+        DateCalculator,
+        DefrostCalculator
 }
 
 @Composable
@@ -310,6 +311,7 @@ private fun App(isDarkTheme: Boolean) {
                                 onOpenNotifications = { navigate(Route.ExpirationNotifications) },
                                 onOpenSettings = { navigate(Route.Settings) },
                                 onOpenDateCalculator = { navigate(Route.DateCalculator) },
+                                onOpenDefrostCalculator = { navigate(Route.DefrostCalculator) },
                                 userMode = userMode,
                                 isDarkTheme = isDarkTheme,
                                 pendingNotificationsCount = pendingCount
@@ -363,6 +365,9 @@ private fun App(isDarkTheme: Boolean) {
                 }
                 Route.DateCalculator -> {
                         ua.entaytion.simi.ui.DateCalculatorScreen(onBack = { goBack() })
+                }
+                Route.DefrostCalculator -> {
+                        ua.entaytion.simi.ui.DefrostCalculatorScreen(onBack = { goBack() })
                 }
         }
 }

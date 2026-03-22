@@ -9,14 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import ua.entaytion.simi.R
 import com.google.firebase.database.FirebaseDatabase
 import ua.entaytion.simi.data.model.UserMode
 import ua.entaytion.simi.viewmodel.SettingsViewModel
 import ua.entaytion.simi.ui.components.MenuContainer
 import ua.entaytion.simi.ui.components.MenuRow
+import ua.entaytion.simi.ui.components.SimiIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,7 +120,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        painter = painterResource(id = ua.entaytion.simi.R.drawable.ic_back),
+                                        imageVector = SimiIcons.Back,
                                         contentDescription = "Назад"
                                 )
                             }
@@ -144,7 +143,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
                     val isDark = currentState.isDarkTheme
                     MenuRow(
                         title = "Темна тема",
-                        iconRes = if (isDark) ua.entaytion.simi.R.drawable.ic_dark_mode else ua.entaytion.simi.R.drawable.ic_light_mode,
+                        icon = if (isDark) SimiIcons.DarkMode else SimiIcons.LightMode,
                         iconTint = MaterialTheme.colorScheme.primary,
                         onClick = { viewModel.setDarkTheme(!isDark) },
                         endContent = {
@@ -174,13 +173,13 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
                         val isSelected = currentState.userMode == mode
                         MenuRow(
                             title = title,
-                            iconRes = ua.entaytion.simi.R.drawable.ic_person,
+                            icon = SimiIcons.Person,
                             iconTint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             onClick = { viewModel.setUserMode(mode) },
                             endContent = {
                                 if (isSelected) {
                                     Icon(
-                                        painter = painterResource(id = R.drawable.ic_ok),
+                                        imageVector = SimiIcons.Ok,
                                         contentDescription = "Вибрано",
                                         tint = MaterialTheme.colorScheme.primary
                                     )

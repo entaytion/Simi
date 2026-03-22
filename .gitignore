@@ -17,6 +17,7 @@ local.properties
 # Signing keys
 *.jks
 *.keystore
+keystore.properties
 
 # Firebase
 google-services.json
@@ -39,3 +40,4 @@ node_modules/
 # Release artifacts
 app/release/
 output-metadata.json
+.claude

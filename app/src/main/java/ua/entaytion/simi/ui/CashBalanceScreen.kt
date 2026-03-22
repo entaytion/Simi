@@ -16,12 +16,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
-import ua.entaytion.simi.R
+import ua.entaytion.simi.ui.components.SimiIcons
 import ua.entaytion.simi.utils.MoneyUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +43,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
                         navigationIcon = {
                             IconButton(onClick = onBack) {
                                 Icon(
-                                        painter = painterResource(id = R.drawable.ic_back),
+                                        imageVector = SimiIcons.Back,
                                         contentDescription = "Назад"
                                 )
                             }
@@ -52,7 +51,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
                         actions = {
                             IconButton(onClick = onToggleTheme) {
                                 Icon(
-                                        painter = painterResource(id = if (isDarkTheme) R.drawable.ic_dark_mode else R.drawable.ic_light_mode),
+                                        imageVector = if (isDarkTheme) SimiIcons.DarkMode else SimiIcons.LightMode,
                                         contentDescription = "Перемкнути тему",
                                         tint = MaterialTheme.colorScheme.onSurface
                                 )
@@ -73,6 +72,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
         ) {
             Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge,
                     colors =
                             CardDefaults.cardColors(
                                     containerColor =
@@ -92,7 +92,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
                             label = { Text("Очікувана сума (система)") },
                             leadingIcon = {
                                 Icon(
-                                        painter = painterResource(R.drawable.ic_cash_desk),
+                                        imageVector = SimiIcons.CashDesk,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -123,7 +123,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
                             label = { Text("Фактична сума в касі") },
                             leadingIcon = {
                                 Icon(
-                                        painter = painterResource(R.drawable.ic_cash_total),
+                                        imageVector = SimiIcons.CashTotal,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -151,6 +151,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
 
             Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge,
                     colors =
                             CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -165,7 +166,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                                painter = painterResource(R.drawable.ic_cash_total),
+                                imageVector = SimiIcons.CashTotal,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -207,6 +208,7 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
 
                 Card(
                         modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.extraLarge,
                         colors =
                                 CardDefaults.cardColors(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant

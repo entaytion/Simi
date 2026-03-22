@@ -56,17 +56,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ua.entaytion.simi.R
 import ua.entaytion.simi.data.model.ExpirationThreat
 import ua.entaytion.simi.ui.components.DiscountBadge
 import ua.entaytion.simi.ui.components.MenuContainer
+import ua.entaytion.simi.ui.components.SimiIcons
 import ua.entaytion.simi.utils.ExpirationUtils
 import ua.entaytion.simi.utils.ProductDictionary
 import ua.entaytion.simi.utils.ProductMatrix
@@ -99,7 +98,7 @@ fun ExpirationScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_back),
+                            imageVector = SimiIcons.Back,
                             contentDescription = "Назад"
                         )
                     }
@@ -108,7 +107,7 @@ fun ExpirationScreen(
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddDialog = true }) {
-                Icon(painter = painterResource(id = R.drawable.ic_add), contentDescription = "Додати")
+                Icon(imageVector = SimiIcons.Add, contentDescription = "Додати")
             }
         }
     ) { innerPadding ->
@@ -159,7 +158,7 @@ fun ExpirationScreen(
                                 item.expirationDate
                             )
                             val discount = ExpirationUtils.discountFor(item.matrix, daysLeft)
-                            
+
                             val isActionCurrentApplied = when(discount) {
                                 10 -> item.isDiscount10Applied
                                 25 -> item.isDiscount25Applied
@@ -179,7 +178,7 @@ fun ExpirationScreen(
                                         text = item.name,
                                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold)
                                     )
-                                    
+
                                     val isExpired = daysLeft != null && daysLeft <= 0
                                     val statusText = when {
                                         isExpired -> "НЕГАЙНО СПИСАТИ ЦЕЙ ТОВАР"
@@ -210,7 +209,7 @@ fun ExpirationScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
-                                            painter = painterResource(id = R.drawable.ic_checkcircle),
+                                            imageVector = SimiIcons.CheckCircle,
                                             contentDescription = "Done",
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(32.dp)
@@ -222,19 +221,19 @@ fun ExpirationScreen(
                                         DiscountBadge(percent = discount)
                                         Spacer(Modifier.width(8.dp))
                                     }
-                                    
+
                                     if (item.matrix == ProductMatrix.PROHIBITED || (daysLeft != null && daysLeft <= 0)) {
-                                         IconButton(onClick = { 
+                                         IconButton(onClick = {
                                              viewModel.applyAction(item.id, null, markResolved = true)
                                          }) {
-                                             Icon(painterResource(id = R.drawable.ic_checkcircle), "Done", tint = MaterialTheme.colorScheme.error)
+                                             Icon(imageVector = SimiIcons.CheckCircle, contentDescription = "Done", tint = MaterialTheme.colorScheme.error)
                                          }
                                     } else {
-                                         IconButton(onClick = { 
+                                         IconButton(onClick = {
                                              viewModel.applyAction(item.id, discount, markResolved = false)
                                          }) {
                                              Icon(
-                                                 painter = painterResource(id = R.drawable.ic_checkcircle), 
+                                                 imageVector = SimiIcons.CheckCircle,
                                                  contentDescription = "Verify",
                                                  tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
                                                  modifier = Modifier.size(32.dp)
@@ -292,14 +291,14 @@ fun ProofOptionsDialog(onDismiss: () -> Unit, onCamera: () -> Unit, onGallery: (
         text = { Text("Щоб відмітити товар як опрацьований, необхідно додати фото-доказ (стікер знижки або списання).") },
         confirmButton = {
             TextButton(onClick = onCamera) {
-                Icon(painterResource(id = R.drawable.ic_camera), null)
+                Icon(imageVector = SimiIcons.Camera, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Камера")
             }
         },
         dismissButton = {
             TextButton(onClick = onGallery) {
-                Icon(painterResource(id = R.drawable.ic_gallery), null)
+                Icon(imageVector = SimiIcons.Gallery, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Галерея")
             }
@@ -315,17 +314,17 @@ fun AddItemDialog(
     onAdd: (String, ProductMatrix, LocalDate) -> Unit
 ) {
     var isManualMode by remember { mutableStateOf(true) }
-    
+
     // Form State
     var name by remember { mutableStateOf("") }
     var expirationDate by remember { mutableStateOf(LocalDate.now().plusDays(3)) }
     var selectedMatrix by remember { mutableStateOf(ProductMatrix.FRESH) }
-    
+
     // AI Mock State
     var isAnalyzing by remember { mutableStateOf(false) }
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
     val isLoading by viewModel.isLoading.collectAsState()
-    
+
     var showDateSuggestions by remember { mutableStateOf<List<LocalDate>?>(null) }
 
     // Auto-detect matrix (Manual Mode)
@@ -354,7 +353,7 @@ fun AddItemDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onDismiss) {
-                        Icon(painterResource(id = R.drawable.ic_close), contentDescription = "Close")
+                        Icon(imageVector = SimiIcons.Close, contentDescription = "Close")
                     }
                     Text("Додати товар", style = MaterialTheme.typography.titleLarge)
                     TextButton(
@@ -390,11 +389,11 @@ fun AddItemDialog(
                         modifier = Modifier.weight(1f)
                     ) { isManualMode = false }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 val analyzedProduct by viewModel.analyzedProduct.collectAsState()
-                
+
                 var showProhibitedDialog by remember { mutableStateOf(false) }
 
                 // When analysis completes, update form
@@ -408,7 +407,7 @@ fun AddItemDialog(
 
                         name = it.name
                         selectedMatrix = it.matrix
-                        
+
                         if (it.dates.size > 1) {
                             showDateSuggestions = it.dates
                         } else if (it.dates.size == 1) {
@@ -444,7 +443,7 @@ fun AddItemDialog(
 
                 if (showDateSuggestions != null) {
                     AlertDialog(
-                        onDismissRequest = { 
+                        onDismissRequest = {
                             showDateSuggestions = null
                             isManualMode = true
                             viewModel.clearAnalyzedResult()
@@ -495,7 +494,7 @@ fun AddItemDialog(
                             trailingIcon = {
                                 val guess = ProductDictionary.guessCategory(name)
                                 if (guess != null) {
-                                    Icon(painterResource(id = R.drawable.ic_ai), "AI Detected", tint = MaterialTheme.colorScheme.primary)
+                                    Icon(imageVector = SimiIcons.AI, contentDescription = "AI Detected", tint = MaterialTheme.colorScheme.primary)
                                 }
                             }
                         )
@@ -506,7 +505,7 @@ fun AddItemDialog(
                         )
 
                         Text("Категорія (Матриця)", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
-                        
+
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                              ProductMatrix.values().filter { it != ProductMatrix.PROHIBITED }.forEach { matrix ->
                                  MatrixOption(
@@ -577,24 +576,24 @@ fun AddItemDialog(
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    Icon(painterResource(id = R.drawable.ic_camera), null)
+                                    Icon(imageVector = SimiIcons.Camera, contentDescription = null)
                                     Spacer(Modifier.width(8.dp))
                                     Text("Камера")
                                 }
-                                
+
                                 OutlinedButton(
                                     onClick = { aiGalleryLauncher.launch("image/*") },
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    Icon(painterResource(id = R.drawable.ic_gallery), null)
+                                    Icon(imageVector = SimiIcons.Gallery, contentDescription = null)
                                     Spacer(Modifier.width(8.dp))
                                     Text("Галерея")
                                 }
                             }
-                            
+
                             Spacer(Modifier.height(40.dp))
-                            
+
                             Text(
                                 "Порада: найкраще працює якщо на фото чітко видно дату та назву продукту.",
                                 style = MaterialTheme.typography.bodySmall,
@@ -603,7 +602,7 @@ fun AddItemDialog(
                             )
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
@@ -641,7 +640,7 @@ fun EditThreatDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = onDismiss) {
-                        Icon(painterResource(id = R.drawable.ic_close), contentDescription = "Close")
+                        Icon(imageVector = SimiIcons.Close, contentDescription = "Close")
                     }
                     Text("Редагувати", style = MaterialTheme.typography.titleLarge)
                     TextButton(
@@ -690,18 +689,18 @@ fun EditThreatDialog(
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-                    
+
                     Button(
                         onClick = onDelete,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.error),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(painterResource(id = R.drawable.ic_delete), null)
+                        Icon(imageVector = SimiIcons.Delete, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text("Видалити запис")
                     }
-                    
+
                     Spacer(modifier = Modifier.height(32.dp))
                 }
             }
@@ -740,14 +739,14 @@ fun PhotoPlaceholder(label: String, isTaken: Boolean, onClick: () -> Unit) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (isTaken) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_checkcircle),
+                        imageVector = SimiIcons.CheckCircle,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(32.dp)
                     )
                 } else {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_camera),
+                        imageVector = SimiIcons.Camera,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(32.dp)
@@ -805,7 +804,7 @@ fun DatePickerField(date: LocalDate, onDateSelected: (LocalDate) -> Unit) {
         enabled = false,
         trailingIcon = {
             IconButton(onClick = { showModal = true }) {
-                Icon(painterResource(id = R.drawable.ic_calendar), "Pick Date")
+                Icon(imageVector = SimiIcons.Calendar, contentDescription = "Pick Date")
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
