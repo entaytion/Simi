@@ -142,9 +142,9 @@ private fun MonthGrid(
     val from = if (selectedDate.isAfter(today)) today else selectedDate
     val to = if (selectedDate.isAfter(today)) selectedDate else today
 
-    // Один червоний колір для старту/фінішу
-    val markerColor = MaterialTheme.colorScheme.error
-    val rangeColor = MaterialTheme.colorScheme.error
+    // Фіолетовий колір для старту/фінішу
+    val markerColor = MaterialTheme.colorScheme.primary
+    val rangeColor = MaterialTheme.colorScheme.primary
 
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         for (week in 0 until weeksCount) {

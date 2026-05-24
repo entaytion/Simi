@@ -17,17 +17,17 @@ object ExpirationUtils {
     // Rules: Pair(DaysLeft, DiscountPercent)
     // "DaysLeft" means: if actual days left <= X, apply Discount Y
     
-    // Fresh: 10%(3d), 25%(2d), 50%(1d), 75%(0d or less)
-    private val freshRules = listOf(0L to 75, 1L to 50, 2L to 25, 3L to 10)
+    // Fresh: 25%(3d), 50%(1d)
+    private val freshRules = listOf(1L to 50, 3L to 25)
     
-    // Non-Fresh Short (<2mo): 10%(5d), 25%(3d), 50%(2d)
-    private val nonFreshShortRules = listOf(2L to 50, 3L to 25, 5L to 10)
+    // Non-Fresh Short (<2mo): 25%(5d), 50%(2d)
+    private val nonFreshShortRules = listOf(2L to 50, 5L to 25)
     
-    // Non-Fresh Medium (2-6mo): 10%(15d), 25%(10d), 50%(5d)
-    private val nonFreshMediumRules = listOf(5L to 50, 10L to 25, 15L to 10)
+    // Non-Fresh Medium (2-6mo): 25%(15d), 50%(5d)
+    private val nonFreshMediumRules = listOf(5L to 50, 15L to 25)
     
-    // Non-Fresh Long (>6mo): 10%(30d), 25%(20d), 50%(10d)
-    private val nonFreshLongRules = listOf(10L to 50, 20L to 25, 30L to 10)
+    // Non-Fresh Long (>6mo): 25%(30d), 50%(10d)
+    private val nonFreshLongRules = listOf(10L to 50, 30L to 25)
 
     fun daysBetween(today: LocalDate, targetMillis: Long?): Long? {
         targetMillis ?: return null
@@ -39,6 +39,7 @@ object ExpirationUtils {
 
     fun discountFor(matrix: ProductMatrix, daysLeft: Long?): Int? {
         daysLeft ?: return null
+        if (daysLeft < 0) return null // Протерміновані товари не мають знижки
         if (matrix == ProductMatrix.PROHIBITED) return null
         
         val rules = when (matrix) {

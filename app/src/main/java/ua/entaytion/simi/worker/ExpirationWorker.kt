@@ -17,11 +17,9 @@ class ExpirationWorker(context: Context, workerParams: WorkerParameters) :
 
         override suspend fun doWork(): Result {
                 val storage = FirebaseExpirationStorage()
-                val reminders = storage.reminders.first()
                 val threats = storage.threats.first()
-                val today = System.currentTimeMillis()
 
-                // 1. Check Threats (from ExpirationScreen)
+                // Check Threats (from ExpirationScreen)
                 threats.forEach { threat ->
                     if (threat.isResolved) return@forEach
 
@@ -55,70 +53,6 @@ class ExpirationWorker(context: Context, workerParams: WorkerParameters) :
                             )
                         }
                     }
-                }
-
-                // 2. Check Reminders
-                reminders.forEach { item ->
-                        // Check if active
-                        if (item.isWrittenOff) return@forEach
-
-                        // Calculate remaining days
-                        val diff = item.finalDate - today
-                        val daysRemaining = TimeUnit.MILLISECONDS.toDays(diff)
-
-                        // Logic for discounts?
-                        // The item has pre-calculated discount dates.
-                        // Check if TODAY is one of those dates or past them, AND discount not
-                        // applied.
-
-                        // Note: Since Worker runs daily, we check if we are AT or PAST the trigger
-                        // date,
-                        // but logic says "Notification comes.. check if checkmark.. if checkmark no
-                        // notification".
-                        // item.isDiscount10Applied stores the checkmark state.
-
-                        // 10%
-                        // Expired?
-                        if (daysRemaining <= 0) {
-                                sendNotification(
-                                        item.id.hashCode() + 3,
-                                        "Протерміновано!",
-                                        "Списати товар: ${item.name}"
-                                )
-                        }
-                        // 50%
-                        else if (!item.isDiscount50Applied &&
-                                        item.discount50Date != null &&
-                                        today >= item.discount50Date
-                        ) {
-                                sendNotification(
-                                        item.id.hashCode() + 2,
-                                        "Знижка 50%",
-                                        "Товар: ${item.name}. Треба наклеїти 50%."
-                                )
-                        }
-                        // 25%
-                        else if (!item.isDiscount25Applied &&
-                                        item.discount25Date != null &&
-                                        today >= item.discount25Date
-                        ) {
-                                sendNotification(
-                                        item.id.hashCode() + 1,
-                                        "Знижка 25%",
-                                        "Товар: ${item.name}. Треба наклеїти 25%."
-                                )
-                        }
-                        // 10%
-                        else if (!item.isDiscount10Applied &&
-                                        item.discount10Date != null &&
-                                        today >= item.discount10Date
-                        ) {
-                                sendNotification(
-                                        item.id.hashCode(),
-                                        "Знижка 10%",
-                                        "Товар: ${item.name}. Треба наклеїти 10%."
-                                )
-                        }
                 }
 
                 return Result.success()

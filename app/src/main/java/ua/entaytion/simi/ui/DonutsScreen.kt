@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,47 +33,11 @@ import ua.entaytion.simi.viewmodel.DonutsViewModel
 @Composable
 fun DonutsScreen(
         onBack: () -> Unit,
-        viewModel: DonutsViewModel,
-        isDarkTheme: Boolean,
-        onToggleTheme: () -> Unit
+        viewModel: DonutsViewModel
 ) {
         val maxCountPerItem = viewModel.maxCountPerItem
 
-        val donutNames = remember {
-                listOf(
-                                "Срібне диво (марципан)",
-                                "Веселих свят (лимон малина)",
-                                "Мандарин нектарин",
-                                "Pink з полуницею",
-                                "Pinkie з маршмелоу",
-                                "Cookies",
-                                "Конфеті Кенді",
-                                "Very cremy berry",
-                                "Rafaela",
-                                "Капучино",
-                                "Панакота",
-                                "Яблуко-кориця",
-                                "Карамелька",
-                                "Потрійний шоколад",
-                                "Лепрекон",
-                                "Вишневі обійми",
-                                "Малинова ніжність",
-                                "Love з полуничним смаком",
-                                "Берлінер \"Червоне серце\"",
-                                "Лісовий горіх",
-                                "Вафлі \"Трубочка\"",
-                                "Торт \"Вафельний\"",
-                                "Мафін \"Тірамісу\"",
-                                "Мафін \"Шоколадний\"",
-                                "Мафін \"Вишневий\"",
-                                "Еклер зі згущеним молоком",
-                                "Еклер з заварним кремом",
-                                "Чізкейк \"Нью-Йорк\"",
-                                "Чізкейк \"Вишня (Сакура)\"",
-                                "Чізкейк \"Солона карамель\""
-                        )
-                        .distinct()
-        }
+        val donutNames by viewModel.donutNames.collectAsState()
 
         var expanded by remember { mutableStateOf(false) }
         var selectedName by remember { mutableStateOf("") }
@@ -95,15 +60,6 @@ fun DonutsScreen(
                                                 Icon(
                                                         imageVector = SimiIcons.Back,
                                                         contentDescription = "Назад"
-                                                )
-                                        }
-                                },
-                                actions = {
-                                        IconButton(onClick = onToggleTheme) {
-                                                Icon(
-                                                        imageVector = if (isDarkTheme) SimiIcons.DarkMode else SimiIcons.LightMode,
-                                                        contentDescription = "Перемкнути тему",
-                                                        tint = MaterialTheme.colorScheme.onSurface
                                                 )
                                         }
                                 }

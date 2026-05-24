@@ -152,7 +152,7 @@ class MainActivity : ComponentActivity() {
 
         private fun scheduleExpirationWorker() {
                 scheduleWorkerAt(7, 0, "expiration_check_morning")
-                scheduleWorkerAt(22, 0, "expiration_check_evening")
+                scheduleWorkerAt(22, 45, "expiration_check_evening")
 
                 // Підписка на глобальні сповіщення
                 com.google.firebase.messaging.FirebaseMessaging.getInstance()
@@ -202,10 +202,9 @@ private enum class Route {
         Donuts,
         HotDogs,
         Settings,
-        ExpirationNotifications,
-        ExpirationManagement,
         DateCalculator,
-        DefrostCalculator
+        DefrostCalculator,
+        AdminPanel
 }
 
 @Composable
@@ -252,7 +251,7 @@ private fun App(isDarkTheme: Boolean) {
                                                                         Route.entries.firstOrNull {
                                                                                 it.name == n
                                                                         }
-                                                                }
+                                                                    }
                                                         )
                                                         if (isEmpty()) add(Route.Home)
                                                 }
@@ -270,36 +269,25 @@ private fun App(isDarkTheme: Boolean) {
 
         BackHandler(enabled = backStack.size > 1) { goBack() }
 
-        // Get pending notifications count from ExpirationReminderViewModel
-        val expirationViewModel: ua.entaytion.simi.viewmodel.ExpirationReminderViewModel =
-                androidx.lifecycle.viewmodel.compose.viewModel(
-                        factory = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-                )
-        val reminders by expirationViewModel.reminders.collectAsState()
+        // Get pending threats count from ExpirationThreatViewModel
+        val expirationViewModel: ua.entaytion.simi.viewmodel.ExpirationThreatViewModel =
+                androidx.lifecycle.viewmodel.compose.viewModel()
+        val threats by expirationViewModel.threats.collectAsState()
 
-        // Count items that need attention (pending discounts or expired)
-        val today = System.currentTimeMillis()
-        val pendingCount =
-                reminders.count { item ->
-                        if (item.isWrittenOff) return@count false
-
-                        // Check for pending discounts
-                        val pendingDiscount10 =
-                                !item.isDiscount10Applied &&
-                                        item.discount10Date != null &&
-                                        today >= item.discount10Date
-                        val pendingDiscount25 =
-                                !item.isDiscount25Applied &&
-                                        item.discount25Date != null &&
-                                        today >= item.discount25Date
-                        val pendingDiscount50 =
-                                !item.isDiscount50Applied &&
-                                        item.discount50Date != null &&
-                                        today >= item.discount50Date
-                        val expired = item.finalDate <= today
-
-                        pendingDiscount10 || pendingDiscount25 || pendingDiscount50 || expired
-                }
+        val todayDate = java.time.LocalDate.now()
+        val pendingCount = threats.count { item ->
+            if (item.isResolved) return@count false
+            val daysLeft = ua.entaytion.simi.utils.ExpirationUtils.daysBetween(todayDate, item.expirationDate)
+            val discount = ua.entaytion.simi.utils.ExpirationUtils.discountFor(item.matrix, daysLeft)
+            val isExpired = daysLeft != null && daysLeft <= 0
+            val isActionCurrentApplied = when(discount) {
+                10 -> item.isDiscount10Applied
+                25 -> item.isDiscount25Applied
+                50 -> item.isDiscount50Applied
+                else -> false
+            }
+            isExpired || (discount != null && !isActionCurrentApplied)
+        }
 
         when (val route = backStack.last()) {
                 Route.Home ->
@@ -308,59 +296,45 @@ private fun App(isDarkTheme: Boolean) {
                                 onOpenCashBalance = { navigate(Route.CashBalance) },
                                 onOpenDonuts = { navigate(Route.Donuts) },
                                 onOpenHotDogs = { navigate(Route.HotDogs) },
-                                onOpenNotifications = { navigate(Route.ExpirationNotifications) },
                                 onOpenSettings = { navigate(Route.Settings) },
                                 onOpenDateCalculator = { navigate(Route.DateCalculator) },
                                 onOpenDefrostCalculator = { navigate(Route.DefrostCalculator) },
                                 userMode = userMode,
-                                isDarkTheme = isDarkTheme,
                                 pendingNotificationsCount = pendingCount
                         )
                 Route.Expiration ->
                         ExpirationScreen(
-                                onBack = { goBack() },
-                                isDarkTheme = isDarkTheme,
-                                onToggleTheme = { settingsViewModel.setDarkTheme(!isDarkTheme) }
+                                onBack = { goBack() }
                         )
-                Route.ExpirationNotifications -> {
-                        ua.entaytion.simi.ui.ExpirationNotificationsScreen(
-                                onBack = { goBack() },
-                                viewModel = expirationViewModel
-                        )
-                }
-                Route.ExpirationManagement -> {
-                        ua.entaytion.simi.ui.ExpirationManagementScreen(
-                                onBack = { goBack() },
-                                viewModel = expirationViewModel
-                        )
-                }
                 Route.Settings ->
                         ua.entaytion.simi.ui.SettingsScreen(
                                 onBack = { goBack() },
-                                viewModel = settingsViewModel
+                                viewModel = settingsViewModel,
+                                onOpenAdminPanel = { navigate(Route.AdminPanel) }
                         )
+                Route.AdminPanel -> {
+                        val vm = androidx.lifecycle.viewmodel.compose.viewModel<DonutsViewModel>()
+                        ua.entaytion.simi.ui.AdminPanelScreen(
+                                onBack = { goBack() },
+                                viewModel = vm
+                        )
+                }
                 Route.CashBalance ->
                         CashBalanceScreen(
-                                onBack = { goBack() },
-                                isDarkTheme = isDarkTheme,
-                                onToggleTheme = { settingsViewModel.setDarkTheme(!isDarkTheme) }
+                                onBack = { goBack() }
                         )
                 Route.Donuts -> {
                         val vm = androidx.lifecycle.viewmodel.compose.viewModel<DonutsViewModel>()
                         DonutsScreen(
                                 onBack = { goBack() },
-                                viewModel = vm,
-                                isDarkTheme = isDarkTheme,
-                                onToggleTheme = { settingsViewModel.setDarkTheme(!isDarkTheme) }
+                                viewModel = vm
                         )
                 }
                 Route.HotDogs -> {
                         val vm = androidx.lifecycle.viewmodel.compose.viewModel<HotDogsViewModel>()
                         HotDogsScreen(
                                 onBack = { goBack() },
-                                viewModel = vm,
-                                isDarkTheme = isDarkTheme,
-                                onToggleTheme = { settingsViewModel.setDarkTheme(!isDarkTheme) }
+                                viewModel = vm
                         )
                 }
                 Route.DateCalculator -> {

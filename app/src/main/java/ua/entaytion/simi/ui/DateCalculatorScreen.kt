@@ -140,9 +140,9 @@ fun CalculatorRow(matrix: ProductMatrix, daysLeft: Long?) {
              
              if (daysLeft != null && daysLeft < 0) {
                  Text(
-                    "OK",
+                    "СПИСАТИ",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Bold
                  )
              } else {
@@ -172,9 +172,9 @@ private fun calculatorMatrixLabel(matrix: ProductMatrix): String = when(matrix) 
 }
 
 private fun calculatorMatrixShortDesc(matrix: ProductMatrix): String = when(matrix) {
-    ProductMatrix.FRESH -> "Молочка, м'ясо"
-    ProductMatrix.NON_FRESH_SHORT -> "Хліб, булки"
-    ProductMatrix.NON_FRESH_MEDIUM -> "Чіпси, пиво"
-    ProductMatrix.NON_FRESH_LONG -> "Вода, бакалія"
+    ProductMatrix.FRESH -> "Фреш: 25% за 3 дні, 50% за 1 день"
+    ProductMatrix.NON_FRESH_SHORT -> "ТП до 59 днів: 25% за 5 дн., 50% за 2 дн."
+    ProductMatrix.NON_FRESH_MEDIUM -> "ТП 60-179 днів: 25% за 15 дн., 50% за 5 дн."
+    ProductMatrix.NON_FRESH_LONG -> "ТП від 180 днів: 25% за 30 дн., 50% за 10 дн."
     ProductMatrix.PROHIBITED -> "Горілка, сигарети"
 }

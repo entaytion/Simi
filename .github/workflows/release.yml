@@ -36,6 +36,13 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.jks
 
+      - name: Create keystore.properties
+        run: |
+          echo "storeFile=release.jks" > keystore.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
+
       - name: Build Release APKs
         run: |
           chmod +x gradlew
@@ -56,7 +63,7 @@ jobs:
           fi
 
           echo "## Зміни" > changelog.txt
-          git log --pretty=format:'%b' $RANGE | grep -E "^- " >> changelog.txt || true
+          git log --pretty=format:'%B' $RANGE | grep -E "^- " >> changelog.txt || true
 
       - name: Create GitHub Release
         run: |

@@ -32,9 +32,7 @@ import ua.entaytion.simi.viewmodel.HotDogsViewModel
 @Composable
 fun HotDogsScreen(
         onBack: () -> Unit,
-        viewModel: HotDogsViewModel,
-        isDarkTheme: Boolean,
-        onToggleTheme: () -> Unit
+        viewModel: HotDogsViewModel
 ) {
     val items = remember {
         listOf(
@@ -70,14 +68,6 @@ fun HotDogsScreen(
                                 Icon(
                                         imageVector = SimiIcons.Back,
                                         contentDescription = "Назад"
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = onToggleTheme) {
-                                Icon(
-                                        imageVector = if (isDarkTheme) SimiIcons.DarkMode else SimiIcons.LightMode,
-                                        contentDescription = "Тема"
                                 )
                             }
                         }

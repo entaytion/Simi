@@ -25,7 +25,7 @@ import ua.entaytion.simi.utils.MoneyUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: () -> Unit) {
+fun CashBalanceScreen(onBack: () -> Unit) {
     var expected by remember { mutableStateOf("") }
     var actual by remember { mutableStateOf("") }
 
@@ -45,15 +45,6 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
                                 Icon(
                                         imageVector = SimiIcons.Back,
                                         contentDescription = "Назад"
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = onToggleTheme) {
-                                Icon(
-                                        imageVector = if (isDarkTheme) SimiIcons.DarkMode else SimiIcons.LightMode,
-                                        contentDescription = "Перемкнути тему",
-                                        tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -87,12 +78,12 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
                 ) {
                     OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = expected,
-                            onValueChange = { expected = it },
-                            label = { Text("Очікувана сума (система)") },
+                            value = actual,
+                            onValueChange = { actual = it },
+                            label = { Text("Фактична сума в касі") },
                             leadingIcon = {
                                 Icon(
-                                        imageVector = SimiIcons.CashDesk,
+                                        imageVector = SimiIcons.CashTotal,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -118,12 +109,12 @@ fun CashBalanceScreen(onBack: () -> Unit, isDarkTheme: Boolean, onToggleTheme: (
 
                     OutlinedTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = actual,
-                            onValueChange = { actual = it },
-                            label = { Text("Фактична сума в касі") },
+                            value = expected,
+                            onValueChange = { expected = it },
+                            label = { Text("Очікувана сума (система)") },
                             leadingIcon = {
                                 Icon(
-                                        imageVector = SimiIcons.CashTotal,
+                                        imageVector = SimiIcons.CashDesk,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

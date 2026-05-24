@@ -1,5 +1,6 @@
 package ua.entaytion.simi.ui
 
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -19,81 +20,14 @@ import ua.entaytion.simi.ui.components.SimiIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
+fun SettingsScreen(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel,
+    onOpenAdminPanel: () -> Unit
+) {
     val state by viewModel.settingsState.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
 
     var debugClickCount by remember { mutableIntStateOf(0) }
-    var showDebugDialog by remember { mutableStateOf(false) }
-
-    if (showDebugDialog) {
-        var notificationTitle by remember { mutableStateOf("") }
-        var notificationMessage by remember { mutableStateOf("") }
-
-        AlertDialog(
-                onDismissRequest = { showDebugDialog = false },
-                title = { Text("Тестове сповіщення") },
-                text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
-                                value = notificationTitle,
-                                onValueChange = { notificationTitle = it },
-                                label = { Text("Заголовок") },
-                                modifier = Modifier.fillMaxWidth()
-                        )
-                        OutlinedTextField(
-                                value = notificationMessage,
-                                onValueChange = { notificationMessage = it },
-                                label = { Text("Опис") },
-                                modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                },
-                confirmButton = {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        // Локальний тест - тільки на цьому пристрої
-                        TextButton(
-                                onClick = {
-                                    ua.entaytion.simi.worker.ExpirationWorker
-                                            .sendCustomNotification(
-                                                    context,
-                                                    notificationTitle.ifEmpty { "Simi" },
-                                                    notificationMessage.ifEmpty {
-                                                        "Тестове сповіщення"
-                                                    }
-                                            )
-                                    showDebugDialog = false
-                                }
-                        ) { Text("Тест локально") }
-
-                        // Firebase - для всіх пристроїв
-                        TextButton(
-                                onClick = {
-                                    val database =
-                                            FirebaseDatabase.getInstance(
-                                                    "https://mrtv-simi-default-rtdb.europe-west1.firebasedatabase.app"
-                                            )
-                                    val ref = database.getReference("global_notifications")
-                                    val notification =
-                                            mapOf(
-                                                    "title" to notificationTitle.ifEmpty { "Simi" },
-                                                    "message" to
-                                                            notificationMessage.ifEmpty {
-                                                                "Тестове сповіщення"
-                                                            },
-                                                    "sentAt" to System.currentTimeMillis()
-                                            )
-                                    ref.setValue(notification)
-                                    showDebugDialog = false
-                                }
-                        ) { Text("Надіслати всім") }
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDebugDialog = false }) { Text("Скасувати") }
-                }
-        )
-    }
 
     Scaffold(
             topBar = {
@@ -111,7 +45,7 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
                                                     ) {
                                                 debugClickCount++
                                                 if (debugClickCount >= 5) {
-                                                    showDebugDialog = true
+                                                    onOpenAdminPanel()
                                                     debugClickCount = 0
                                                 }
                                             }
@@ -208,6 +142,62 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Про додаток",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 12.dp)
+                )
+
+                MenuContainer {
+                    val context = LocalContext.current
+                    val appVersion = remember(context) {
+                        try {
+                            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+                            packageInfo.versionName ?: "1.3"
+                        } catch (e: Exception) {
+                            "1.3"
+                        }
+                    }
+                    MenuRow(
+                        title = "Автор",
+                        icon = SimiIcons.Person,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        onClick = {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse("https://t.me/entaytion")
+                            )
+                            context.startActivity(intent)
+                        },
+                        endContent = {
+                            Text(
+                                text = "@entaytion",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 56.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
+                    MenuRow(
+                        title = "Версія",
+                        icon = SimiIcons.Settings,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        onClick = {},
+                        endContent = {
+                            Text(
+                                text = appVersion,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    )
+                }
             }
         }
     }

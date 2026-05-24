@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import ua.entaytion.simi.data.model.ExpirationThreat
 import ua.entaytion.simi.utils.ProductMatrix
 import java.time.LocalDate
@@ -116,56 +118,136 @@ class ExpirationThreatViewModel : ViewModel() {
         _analyzedProduct.value = null
     }
 
-    fun addThreat(name: String, matrix: ProductMatrix, date: LocalDate) {
-        val id = risksRef.push().key ?: UUID.randomUUID().toString()
-        val timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        
-        val threatMap = mapOf(
-            "id" to id,
-            "name" to name,
-            "matrix" to matrix.name, 
-            "expirationDate" to timestamp,
-            "isResolved" to false,
-            "addedAt" to System.currentTimeMillis()
-        )
-        
-        risksRef.child(id).setValue(threatMap)
+    suspend fun uploadImage(uri: Uri, context: android.content.Context): String {
+        val ref = storage.reference.child("threat_proofs/${UUID.randomUUID()}.jpg")
+        ref.putFile(uri).await()
+        return ref.downloadUrl.await().toString()
     }
 
-    fun updateThreat(threat: ExpirationThreat) {
-        val threatMap = mapOf(
-            "id" to threat.id,
-            "name" to threat.name,
-            "matrix" to threat.matrix.name,
-            "expirationDate" to threat.expirationDate,
-            "isResolved" to threat.isResolved,
-            "resolvedAt" to threat.resolvedAt,
-            "proofImageUrls" to threat.proofImageUrls,
-            "isDiscount10Applied" to threat.isDiscount10Applied,
-            "isDiscount25Applied" to threat.isDiscount25Applied,
-            "isDiscount50Applied" to threat.isDiscount50Applied
-        )
-        risksRef.child(threat.id).setValue(threatMap)
+    fun addThreat(name: String, matrix: ProductMatrix, date: LocalDate, imageUris: List<Uri> = emptyList(), context: android.content.Context? = null) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val imageUrls = mutableListOf<String>()
+                if (context != null && imageUris.isNotEmpty()) {
+                    for (uri in imageUris) {
+                        try {
+                            val url = uploadImage(uri, context)
+                            imageUrls.add(url)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            withContext(Dispatchers.Main) {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    "Помилка завантаження фото: ${e.localizedMessage}",
+                                    android.widget.Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+                }
+                
+                val id = risksRef.push().key ?: UUID.randomUUID().toString()
+                val timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                
+                val threatMap = mapOf(
+                    "id" to id,
+                    "name" to name,
+                    "matrix" to matrix.name, 
+                    "expirationDate" to timestamp,
+                    "isResolved" to false,
+                    "addedAt" to System.currentTimeMillis(),
+                    "proofImageUrls" to imageUrls
+                )
+                
+                risksRef.child(id).setValue(threatMap).await()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                if (context != null) {
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(
+                            context,
+                            "Помилка бази даних: ${e.localizedMessage}",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun updateThreat(threat: ExpirationThreat, newImageUris: List<Uri> = emptyList(), context: android.content.Context? = null) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val imageUrls = threat.proofImageUrls.toMutableList()
+                if (context != null && newImageUris.isNotEmpty()) {
+                    for (uri in newImageUris) {
+                        try {
+                            val url = uploadImage(uri, context)
+                            imageUrls.add(url)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            withContext(Dispatchers.Main) {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    "Помилка завантаження фото: ${e.localizedMessage}",
+                                    android.widget.Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+                }
+                
+                val threatMap = mapOf(
+                    "id" to threat.id,
+                    "name" to threat.name,
+                    "matrix" to threat.matrix.name,
+                    "expirationDate" to threat.expirationDate,
+                    "isResolved" to threat.isResolved,
+                    "resolvedAt" to threat.resolvedAt,
+                    "proofImageUrls" to imageUrls,
+                    "isDiscount10Applied" to threat.isDiscount10Applied,
+                    "isDiscount25Applied" to threat.isDiscount25Applied,
+                    "isDiscount50Applied" to threat.isDiscount50Applied
+                )
+                risksRef.child(threat.id).setValue(threatMap).await()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                if (context != null) {
+                    withContext(Dispatchers.Main) {
+                        android.widget.Toast.makeText(
+                            context,
+                            "Помилка оновлення: ${e.localizedMessage}",
+                            android.widget.Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     fun applyAction(threatId: String, discountPercent: Int?, markResolved: Boolean = false) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val updates = mutableMapOf<String, Any>()
-
-                when (discountPercent) {
-                    10 -> updates["isDiscount10Applied"] = true
-                    25 -> updates["isDiscount25Applied"] = true
-                    50 -> updates["isDiscount50Applied"] = true
-                }
-
                 if (markResolved) {
-                    updates["isResolved"] = true
-                    updates["resolvedAt"] = System.currentTimeMillis()
+                    risksRef.child(threatId).removeValue().await()
+                } else {
+                    val updates = mutableMapOf<String, Any>()
+                    when (discountPercent) {
+                        10 -> updates["isDiscount10Applied"] = true
+                        25 -> updates["isDiscount25Applied"] = true
+                        50 -> updates["isDiscount50Applied"] = true
+                    }
+                    if (updates.isNotEmpty()) {
+                        risksRef.child(threatId).updateChildren(updates).await()
+                    }
                 }
-
-                risksRef.child(threatId).updateChildren(updates).await()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

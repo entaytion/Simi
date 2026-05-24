@@ -1,5 +1,6 @@
 package ua.entaytion.simi.ui
 
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,12 +24,10 @@ fun HomeScreen(
         onOpenCashBalance: () -> Unit,
         onOpenDonuts: () -> Unit,
         onOpenHotDogs: () -> Unit,
-        onOpenNotifications: () -> Unit,
         onOpenSettings: () -> Unit,
         onOpenDateCalculator: () -> Unit,
         onOpenDefrostCalculator: () -> Unit,
         userMode: UserMode,
-        isDarkTheme: Boolean,
         pendingNotificationsCount: Int = 0
 ) {
         val allItems =
@@ -36,7 +35,7 @@ fun HomeScreen(
                         HomeItem(
                                 "Загроза протерміну",
                                 SimiIcons.Expiration,
-                                Color(0xFFF44336),
+                                Color(0xFF7033AC),
                                 onOpenExpiration,
                                 setOf(UserMode.EXPERIENCED, UserMode.INDIFFERENT),
                                 HomeGroup.PRIORITY
@@ -44,7 +43,7 @@ fun HomeScreen(
                         HomeItem(
                                 "Калькулятор дат",
                                 SimiIcons.DaysLeft,
-                                Color(0xFFE91E63),
+                                Color(0xFF7033AC),
                                 onOpenDateCalculator,
                                 setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
                                 HomeGroup.PRIORITY
@@ -52,7 +51,7 @@ fun HomeScreen(
                         HomeItem(
                                 "Терміни дефростації",
                                 SimiIcons.DaysLeft,
-                                Color(0xFF00BCD4),
+                                Color(0xFF7033AC),
                                 onOpenDefrostCalculator,
                                 setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
                                 HomeGroup.PRIORITY
@@ -60,7 +59,7 @@ fun HomeScreen(
                         HomeItem(
                                 "Вирівнювання готівки",
                                 SimiIcons.Cash,
-                                Color(0xFF4CAF50),
+                                Color(0xFF7033AC),
                                 onOpenCashBalance,
                                 setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
                                 HomeGroup.FINANCE
@@ -68,7 +67,7 @@ fun HomeScreen(
                         HomeItem(
                                 "Докласти донати",
                                 SimiIcons.Donut,
-                                Color(0xFFFF9800),
+                                Color(0xFF7033AC),
                                 onOpenDonuts,
                                 setOf(UserMode.NEWBIE, UserMode.INDIFFERENT),
                                 HomeGroup.GOODS
@@ -76,7 +75,7 @@ fun HomeScreen(
                         HomeItem(
                                 "Докласти хот-доги",
                                 SimiIcons.HotDog,
-                                Color(0xFFFF5722),
+                                Color(0xFF7033AC),
                                 onOpenHotDogs,
                                 setOf(UserMode.NEWBIE, UserMode.INDIFFERENT),
                                 HomeGroup.GOODS
@@ -92,44 +91,6 @@ fun HomeScreen(
                         CenterAlignedTopAppBar(
                                 title = { Text("Інструменти") },
                                 actions = {
-                                        IconButton(onClick = onOpenNotifications) {
-                                                BadgedBox(
-                                                        badge = {
-                                                                if (pendingNotificationsCount > 0) {
-                                                                        Badge(
-                                                                                containerColor =
-                                                                                        Color(
-                                                                                                0xFFF44336
-                                                                                        )
-                                                                        ) {
-                                                                                Text(
-                                                                                        text =
-                                                                                                if (pendingNotificationsCount >
-                                                                                                                99
-                                                                                                )
-                                                                                                        "99+"
-                                                                                                else
-                                                                                                        pendingNotificationsCount
-                                                                                                                .toString(),
-                                                                                        fontSize =
-                                                                                                10.sp,
-                                                                                        fontWeight =
-                                                                                                FontWeight
-                                                                                                        .Bold
-                                                                                )
-                                                                        }
-                                                                }
-                                                        }
-                                                ) {
-                                                        Icon(
-                                                                imageVector = SimiIcons.Bell,
-                                                                contentDescription = "Сповіщення",
-                                                                tint =
-                                                                        MaterialTheme.colorScheme
-                                                                                .onSurface
-                                                        )
-                                                }
-                                        }
                                         IconButton(onClick = onOpenSettings) {
                                                 Icon(
                                                         imageVector = SimiIcons.Settings,
@@ -160,12 +121,27 @@ fun HomeScreen(
                                                                 iconTint = item.accent,
                                                                 onClick = item.onTap,
                                                                 endContent = {
-                                                                    Icon(
-                                                                        imageVector = SimiIcons.Forward,
-                                                                        contentDescription = null,
-                                                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                                                        modifier = Modifier.size(20.dp)
-                                                                    )
+                                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                        if (item.title == "Загроза протерміну" && pendingNotificationsCount > 0) {
+                                                                            Badge(
+                                                                                containerColor = Color(0xFFF44336),
+                                                                                modifier = Modifier.padding(end = 8.dp)
+                                                                            ) {
+                                                                                Text(
+                                                                                    text = if (pendingNotificationsCount > 99) "99+" else pendingNotificationsCount.toString(),
+                                                                                    color = Color.White,
+                                                                                    fontWeight = FontWeight.Bold,
+                                                                                    fontSize = 10.sp
+                                                                                )
+                                                                            }
+                                                                        }
+                                                                        Icon(
+                                                                            imageVector = SimiIcons.Forward,
+                                                                            contentDescription = null,
+                                                                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                                                            modifier = Modifier.size(20.dp)
+                                                                        )
+                                                                    }
                                                                 }
                                                         )
                                                         if (index < items.size - 1) {
