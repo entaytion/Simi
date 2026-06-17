@@ -36,13 +36,6 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.jks
 
-      - name: Create keystore.properties
-        run: |
-          echo "storeFile=release.jks" > keystore.properties
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
-
       - name: Build Release APKs
         run: |
           chmod +x gradlew
@@ -70,6 +63,7 @@ jobs:
           gh release create ${{ github.ref_name }} \
             app/build/outputs/apk/release/*.apk \
             --title "${{ github.ref_name }}" \
-            --notes-file changelog.txt
+            --notes-file changelog.txt \
+            --prerelease
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
