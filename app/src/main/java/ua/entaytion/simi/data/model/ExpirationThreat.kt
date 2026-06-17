@@ -1,7 +1,9 @@
 package ua.entaytion.simi.data.model
 
+import androidx.annotation.Keep
 import ua.entaytion.simi.utils.ProductMatrix
 
+@Keep
 data class ExpirationThreat(
     val id: String = "",
     val name: String = "",

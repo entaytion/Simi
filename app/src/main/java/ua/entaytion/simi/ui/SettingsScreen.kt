@@ -153,14 +153,7 @@ fun SettingsScreen(
 
                 MenuContainer {
                     val context = LocalContext.current
-                    val appVersion = remember(context) {
-                        try {
-                            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-                            packageInfo.versionName ?: "1.3"
-                        } catch (e: Exception) {
-                            "1.3"
-                        }
-                    }
+                    val appVersion = ua.entaytion.simi.BuildConfig.VERSION_NAME
                     MenuRow(
                         title = "Автор",
                         icon = SimiIcons.Person,

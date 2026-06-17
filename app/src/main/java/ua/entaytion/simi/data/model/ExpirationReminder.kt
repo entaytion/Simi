@@ -1,5 +1,8 @@
 package ua.entaytion.simi.data.model
 
+import androidx.annotation.Keep
+
+@Keep
 data class ExpirationReminder(
         val id: String = "",
         val name: String = "",

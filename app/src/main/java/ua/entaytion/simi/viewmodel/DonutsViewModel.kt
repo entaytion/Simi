@@ -1,5 +1,6 @@
 package ua.entaytion.simi.viewmodel
 
+import androidx.annotation.Keep
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
 
+@Keep
 data class DonutEntry(val name: String, val dateTaken: LocalDateTime, val count: Int)
 
 class DonutsViewModel : ViewModel() {
@@ -136,6 +138,10 @@ class DonutsViewModel : ViewModel() {
 
     fun resetDonutNames() {
         donutListRef.setValue(defaultDonutNames)
+    }
+
+    fun updateDonutNames(names: List<String>) {
+        donutListRef.setValue(names)
     }
 
     override fun onCleared() {

@@ -26,6 +26,12 @@
 -keep class com.google.gson.** { *; }
 -dontwarn com.google.gson.**
 
+# Firebase Realtime Database Keep Rules
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.internal.** { *; }
+-dontwarn com.google.firebase.**
+-dontwarn com.google.android.gms.internal.**
+
 # Preserve Workers
 -keep class * extends androidx.work.ListenableWorker {
     <init>(...);

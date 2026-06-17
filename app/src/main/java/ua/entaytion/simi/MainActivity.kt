@@ -313,10 +313,8 @@ private fun App(isDarkTheme: Boolean) {
                                 onOpenAdminPanel = { navigate(Route.AdminPanel) }
                         )
                 Route.AdminPanel -> {
-                        val vm = androidx.lifecycle.viewmodel.compose.viewModel<DonutsViewModel>()
                         ua.entaytion.simi.ui.AdminPanelScreen(
-                                onBack = { goBack() },
-                                viewModel = vm
+                                onBack = { goBack() }
                         )
                 }
                 Route.CashBalance ->
@@ -341,7 +339,8 @@ private fun App(isDarkTheme: Boolean) {
                         ua.entaytion.simi.ui.DateCalculatorScreen(onBack = { goBack() })
                 }
                 Route.DefrostCalculator -> {
-                        ua.entaytion.simi.ui.DefrostCalculatorScreen(onBack = { goBack() })
+                        val vm = androidx.lifecycle.viewmodel.compose.viewModel<ua.entaytion.simi.viewmodel.DefrostViewModel>()
+                        ua.entaytion.simi.ui.DefrostCalculatorScreen(onBack = { goBack() }, viewModel = vm)
                 }
         }
 }
