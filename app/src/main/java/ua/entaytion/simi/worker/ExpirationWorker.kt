@@ -16,7 +16,7 @@ class ExpirationWorker(context: Context, workerParams: WorkerParameters) :
         CoroutineWorker(context, workerParams) {
 
         override suspend fun doWork(): Result {
-                val storage = FirebaseExpirationStorage()
+                val storage = FirebaseExpirationStorage(applicationContext)
                 val threats = storage.threats.first()
 
                 // Check Threats (from ExpirationScreen)

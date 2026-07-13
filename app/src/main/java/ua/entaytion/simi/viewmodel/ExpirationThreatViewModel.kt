@@ -1,10 +1,12 @@
 package ua.entaytion.simi.viewmodel
 
+import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
@@ -15,16 +17,17 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import ua.entaytion.simi.data.model.ExpirationThreat
+import ua.entaytion.simi.data.storage.SettingsStorage
 import ua.entaytion.simi.utils.ProductMatrix
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
 
-class ExpirationThreatViewModel : ViewModel() {
+class ExpirationThreatViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = FirebaseDatabase.getInstance("https://mrtv-simi-default-rtdb.europe-west1.firebasedatabase.app")
-    private val risksRef = db.getReference("expiration_risks")
     private val storage = FirebaseStorage.getInstance()
+    private val settingsStorage = SettingsStorage(application)
 
     private val _threats = MutableStateFlow<List<ExpirationThreat>>(emptyList())
     val threats: StateFlow<List<ExpirationThreat>> = _threats
@@ -32,15 +35,37 @@ class ExpirationThreatViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private var currentStoreId: String? = null
+    private var dbListener: ValueEventListener? = null
+
     init {
-        listenToThreats()
+        viewModelScope.launch {
+            settingsStorage.state.collect { settings ->
+                val newStoreId = settings.selectedStoreId
+                if (newStoreId != currentStoreId) {
+                    // Unsubscribe old listener
+                    currentStoreId?.let { oldId ->
+                        dbListener?.let { listener ->
+                            db.getReference("expiration_risks/$oldId").removeEventListener(listener)
+                        }
+                    }
+                    currentStoreId = newStoreId
+                    listenToThreats(newStoreId)
+                }
+            }
+        }
     }
 
     private val _analyzedProduct = MutableStateFlow<ua.entaytion.simi.utils.AnalyzedProduct?>(null)
     val analyzedProduct = _analyzedProduct
 
-    private fun listenToThreats() {
-        risksRef.addValueEventListener(object : ValueEventListener {
+    private fun getRisksRef(): DatabaseReference {
+        val storeId = currentStoreId ?: "6102"
+        return db.getReference("expiration_risks/$storeId")
+    }
+
+    private fun listenToThreats(storeId: String) {
+        val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<ExpirationThreat>()
                 for (child in snapshot.children) {
@@ -97,7 +122,9 @@ class ExpirationThreatViewModel : ViewModel() {
             override fun onCancelled(error: DatabaseError) {
                 // Log error
             }
-        })
+        }
+        dbListener = listener
+        db.getReference("expiration_risks/$storeId").addValueEventListener(listener)
     }
     
     fun analyzeImage(bitmap: android.graphics.Bitmap) {
@@ -147,7 +174,8 @@ class ExpirationThreatViewModel : ViewModel() {
                     }
                 }
                 
-                val id = risksRef.push().key ?: UUID.randomUUID().toString()
+                val currentRef = getRisksRef()
+                val id = currentRef.push().key ?: UUID.randomUUID().toString()
                 val timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 
                 val threatMap = mapOf(
@@ -160,7 +188,7 @@ class ExpirationThreatViewModel : ViewModel() {
                     "proofImageUrls" to imageUrls
                 )
                 
-                risksRef.child(id).setValue(threatMap).await()
+                currentRef.child(id).setValue(threatMap).await()
             } catch (e: Exception) {
                 e.printStackTrace()
                 if (context != null) {
@@ -213,7 +241,7 @@ class ExpirationThreatViewModel : ViewModel() {
                     "isDiscount25Applied" to threat.isDiscount25Applied,
                     "isDiscount50Applied" to threat.isDiscount50Applied
                 )
-                risksRef.child(threat.id).setValue(threatMap).await()
+                getRisksRef().child(threat.id).setValue(threatMap).await()
             } catch (e: Exception) {
                 e.printStackTrace()
                 if (context != null) {
@@ -235,8 +263,9 @@ class ExpirationThreatViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                val currentRef = getRisksRef()
                 if (markResolved) {
-                    risksRef.child(threatId).removeValue().await()
+                    currentRef.child(threatId).removeValue().await()
                 } else {
                     val updates = mutableMapOf<String, Any>()
                     when (discountPercent) {
@@ -245,7 +274,7 @@ class ExpirationThreatViewModel : ViewModel() {
                         50 -> updates["isDiscount50Applied"] = true
                     }
                     if (updates.isNotEmpty()) {
-                        risksRef.child(threatId).updateChildren(updates).await()
+                        currentRef.child(threatId).updateChildren(updates).await()
                     }
                 }
             } catch (e: Exception) {
@@ -257,6 +286,15 @@ class ExpirationThreatViewModel : ViewModel() {
     }
     
     fun deleteThreat(threatId: String) {
-        risksRef.child(threatId).removeValue()
+        getRisksRef().child(threatId).removeValue()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        currentStoreId?.let { storeId ->
+            dbListener?.let { listener ->
+                db.getReference("expiration_risks/$storeId").removeEventListener(listener)
+            }
+        }
     }
 }

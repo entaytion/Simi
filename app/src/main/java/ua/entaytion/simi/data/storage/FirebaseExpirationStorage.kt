@@ -1,5 +1,6 @@
 package ua.entaytion.simi.data.storage
 
+import android.content.Context
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -7,20 +8,24 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import ua.entaytion.simi.data.model.ExpirationThreat
 import ua.entaytion.simi.utils.ProductMatrix
 
 /**
  * Firebase-based storage for expiration threats. Shared across all devices in real-time.
  */
-class FirebaseExpirationStorage {
+class FirebaseExpirationStorage(private val context: Context) {
     private val database =
             FirebaseDatabase.getInstance(
                     "https://mrtv-simi-default-rtdb.europe-west1.firebasedatabase.app"
             )
-    private val threatsRef = database.getReference("expiration_risks")
 
     val threats: Flow<List<ExpirationThreat>> = callbackFlow {
+        val settingsStorage = SettingsStorage(context)
+        val storeId = settingsStorage.state.first().selectedStoreId
+        val threatsRef = database.getReference("expiration_risks/$storeId")
+
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val list = mutableListOf<ExpirationThreat>()

@@ -26,6 +26,8 @@ import androidx.compose.material.icons.rounded.PointOfSale
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material.icons.rounded.Cookie
+import androidx.compose.material.icons.rounded.Fastfood
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -34,8 +36,9 @@ object SimiIcons {
     val Forward: ImageVector = Icons.AutoMirrored.Rounded.ArrowForward
     val Bell: ImageVector = Icons.Rounded.Notifications
     val Settings: ImageVector = Icons.Rounded.Settings
-    val Donut: ImageVector = Icons.Rounded.BakeryDining
-    val HotDog: ImageVector = Icons.Rounded.LunchDining
+    val Donut: ImageVector = Icons.Rounded.Cookie
+    val HotDog: ImageVector = Icons.Rounded.Fastfood
+    val Baking: ImageVector = Icons.Rounded.BakeryDining
     val Cash: ImageVector = Icons.Rounded.AttachMoney
     val CashDesk: ImageVector = Icons.Rounded.PointOfSale
     val CashTotal: ImageVector = Icons.Rounded.Payments
@@ -60,4 +63,5 @@ object SimiIcons {
     val Chips: ImageVector = Icons.Rounded.LocalGroceryStore
     val Discount: ImageVector = Icons.Rounded.AttachMoney
     val Ok: ImageVector = Icons.Rounded.CheckCircle
+    val Store: ImageVector = Icons.Rounded.LocalGroceryStore
 }

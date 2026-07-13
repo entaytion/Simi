@@ -24,4 +24,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setUserMode(mode: UserMode) {
         viewModelScope.launch { storage.setUserMode(mode) }
     }
+
+    fun setSelectedStoreId(storeId: String) {
+        viewModelScope.launch { storage.setSelectedStoreId(storeId) }
+    }
 }

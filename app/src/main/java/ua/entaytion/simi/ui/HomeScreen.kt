@@ -27,6 +27,7 @@ fun HomeScreen(
         onOpenSettings: () -> Unit,
         onOpenDateCalculator: () -> Unit,
         onOpenDefrostCalculator: () -> Unit,
+        onOpenBaking: () -> Unit,
         userMode: UserMode,
         pendingNotificationsCount: Int = 0
 ) {
@@ -78,6 +79,14 @@ fun HomeScreen(
                                 Color(0xFF7033AC),
                                 onOpenHotDogs,
                                 setOf(UserMode.NEWBIE, UserMode.INDIFFERENT),
+                                HomeGroup.GOODS
+                        ),
+                        HomeItem(
+                                "Випічка",
+                                SimiIcons.Baking,
+                                Color(0xFF7033AC),
+                                onOpenBaking,
+                                setOf(UserMode.NEWBIE, UserMode.EXPERIENCED, UserMode.INDIFFERENT),
                                 HomeGroup.GOODS
                         )
                 )

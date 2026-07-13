@@ -146,6 +146,46 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
+                    text = "Магазин Simi",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 12.dp)
+                )
+
+                MenuContainer {
+                    val stores = listOf(
+                        "6102" to "6102 Львівське шосе 21/2",
+                        "6106" to "6106 Соборна 69"
+                    )
+
+                    stores.forEachIndexed { index, (storeId, storeName) ->
+                        val isSelected = currentState.selectedStoreId == storeId
+                        MenuRow(
+                            title = storeName,
+                            icon = SimiIcons.Store,
+                            iconTint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            onClick = { viewModel.setSelectedStoreId(storeId) },
+                            endContent = {
+                                if (isSelected) {
+                                    Icon(
+                                        imageVector = SimiIcons.Ok,
+                                        contentDescription = "Вибрано",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        )
+                        if (index < stores.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 56.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
                     text = "Про додаток",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 12.dp)

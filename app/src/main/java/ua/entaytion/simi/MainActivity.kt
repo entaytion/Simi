@@ -204,7 +204,8 @@ private enum class Route {
         Settings,
         DateCalculator,
         DefrostCalculator,
-        AdminPanel
+        AdminPanel,
+        Baking
 }
 
 @Composable
@@ -299,6 +300,7 @@ private fun App(isDarkTheme: Boolean) {
                                 onOpenSettings = { navigate(Route.Settings) },
                                 onOpenDateCalculator = { navigate(Route.DateCalculator) },
                                 onOpenDefrostCalculator = { navigate(Route.DefrostCalculator) },
+                                onOpenBaking = { navigate(Route.Baking) },
                                 userMode = userMode,
                                 pendingNotificationsCount = pendingCount
                         )
@@ -341,6 +343,10 @@ private fun App(isDarkTheme: Boolean) {
                 Route.DefrostCalculator -> {
                         val vm = androidx.lifecycle.viewmodel.compose.viewModel<ua.entaytion.simi.viewmodel.DefrostViewModel>()
                         ua.entaytion.simi.ui.DefrostCalculatorScreen(onBack = { goBack() }, viewModel = vm)
+                }
+                Route.Baking -> {
+                        val vm = androidx.lifecycle.viewmodel.compose.viewModel<ua.entaytion.simi.viewmodel.BakingViewModel>()
+                        ua.entaytion.simi.ui.BakingScreen(onBack = { goBack() }, viewModel = vm)
                 }
         }
 }
