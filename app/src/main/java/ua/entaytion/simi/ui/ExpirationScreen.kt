@@ -76,6 +76,27 @@ fun ExpirationScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f),
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "⚠️ Увага! Стікери пишуться, якщо термін придатності більше 24 годин!",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
                     threats.forEach { item ->
                         ExpirationThreatCard(
                             item = item,
@@ -103,17 +124,17 @@ fun ExpirationScreen(
     }
 
     if (showEditDialogFor != null) {
-         EditThreatDialog(
-             threat = showEditDialogFor!!,
-             onDismiss = { showEditDialogFor = null },
-             onUpdate = { updated, newImageUris ->
-                 viewModel.updateThreat(updated, newImageUris, context)
-                 showEditDialogFor = null
-             },
-             onDelete = {
-                 viewModel.deleteThreat(showEditDialogFor!!.id)
-                 showEditDialogFor = null
-             }
-         )
+        EditThreatDialog(
+            threat = showEditDialogFor!!,
+            onDismiss = { showEditDialogFor = null },
+            onUpdate = { updated, newImageUris ->
+                viewModel.updateThreat(updated, newImageUris, context)
+                showEditDialogFor = null
+            },
+            onDelete = {
+                viewModel.deleteThreat(showEditDialogFor!!.id)
+                showEditDialogFor = null
+            }
+        )
     }
 }

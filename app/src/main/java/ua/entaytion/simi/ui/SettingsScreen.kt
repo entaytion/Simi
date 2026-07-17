@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 import com.google.firebase.database.FirebaseDatabase
 import ua.entaytion.simi.data.model.UserMode
 import ua.entaytion.simi.viewmodel.SettingsViewModel
@@ -151,36 +152,177 @@ fun SettingsScreen(
                     modifier = Modifier.padding(start = 12.dp)
                 )
 
-                MenuContainer {
-                    val stores = listOf(
-                        "6102" to "6102 Львівське шосе 21/2",
-                        "6106" to "6106 Соборна 69"
-                    )
+                var showStoreDialog by remember { mutableStateOf(false) }
 
-                    stores.forEachIndexed { index, (storeId, storeName) ->
-                        val isSelected = currentState.selectedStoreId == storeId
-                        MenuRow(
-                            title = storeName,
-                            icon = SimiIcons.Store,
-                            iconTint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            onClick = { viewModel.setSelectedStoreId(storeId) },
-                            endContent = {
-                                if (isSelected) {
-                                    Icon(
-                                        imageVector = SimiIcons.Ok,
-                                        contentDescription = "Вибрано",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        )
-                        if (index < stores.size - 1) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(start = 56.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                MenuContainer {
+                    MenuRow(
+                        title = currentState.selectedStoreName.ifEmpty { "Оберіть магазин" },
+                        icon = SimiIcons.Store,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        onClick = { showStoreDialog = true },
+                        endContent = {
+                            Text(
+                                text = "Код: ${currentState.selectedStoreId}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
+                    )
+                }
+
+                if (showStoreDialog) {
+                    var searchQuery by remember { mutableStateOf("") }
+                    var isLoadingStores by remember { mutableStateOf(true) }
+                    var storesList by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+                    val coroutineScope = rememberCoroutineScope()
+
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            try {
+                                val allFetched = mutableListOf<Pair<String, String>>()
+                                var currentPage = 1
+                                var totalPages = 1
+                                do {
+                                    val url = java.net.URL("https://tosim.sim23.ua/api/v1/stores?page=$currentPage&limit=100")
+                                    val connection = url.openConnection() as java.net.HttpURLConnection
+                                    connection.requestMethod = "GET"
+                                    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
+                                    connection.connectTimeout = 10000
+                                    connection.readTimeout = 10000
+                                    
+                                    val responseText = connection.inputStream.bufferedReader().use { it.readText() }
+                                    val jsonObject = com.google.gson.JsonParser.parseString(responseText).asJsonObject
+                                    totalPages = jsonObject.get("pages").asInt
+                                    
+                                    val dataArray = jsonObject.getAsJsonArray("data")
+                                    for (i in 0 until dataArray.size()) {
+                                        val storeObj = dataArray.get(i).asJsonObject
+                                        val shopCodeElement = storeObj.get("shop_code")
+                                        val shopCode = if (shopCodeElement.isJsonPrimitive && shopCodeElement.asJsonPrimitive.isNumber) {
+                                            shopCodeElement.asInt.toString()
+                                        } else {
+                                            shopCodeElement.asString
+                                        }
+                                        val address = storeObj.get("address").asString
+                                        val cityObj = storeObj.getAsJsonObject("city")
+                                        val cityName = cityObj?.get("title")?.asString ?: ""
+                                        
+                                        val displayName = if (cityName.isNotEmpty() && !address.startsWith(cityName)) {
+                                            "$cityName, $address"
+                                        } else {
+                                            address
+                                        }
+                                        allFetched.add(shopCode to "$shopCode $displayName")
+                                    }
+                                    currentPage++
+                                } while (currentPage <= totalPages)
+                                
+                                storesList = allFetched
+                                isLoadingStores = false
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                // Fallback static list in case of network issues
+                                storesList = listOf(
+                                    "6102" to "6102 Хмельницький, Львівське шосе, 21/2",
+                                    "6106" to "6106 Соборна 69"
+                                )
+                                isLoadingStores = false
+                            }
+                        }
                     }
+
+                    AlertDialog(
+                        onDismissRequest = { showStoreDialog = false },
+                        title = { Text("Оберіть магазин Simi") },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedTextField(
+                                    value = searchQuery,
+                                    onValueChange = { searchQuery = it },
+                                    label = { Text("Пошук за адресою чи кодом") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                if (isLoadingStores) {
+                                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator()
+                                    }
+                                } else {
+                                    val filtered = storesList.filter {
+                                        it.second.contains(searchQuery, ignoreCase = true)
+                                    }
+                                    Box(modifier = Modifier.height(300.dp).fillMaxWidth()) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .verticalScroll(rememberScrollState()),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            filtered.forEach { (storeId, storeName) ->
+                                                Card(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable {
+                                                            viewModel.setSelectedStore(storeId, storeName)
+                                                            showStoreDialog = false
+                                                        },
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = if (currentState.selectedStoreId == storeId)
+                                                            MaterialTheme.colorScheme.primaryContainer
+                                                        else
+                                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        text = storeName,
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.padding(12.dp),
+                                                        fontWeight = if (currentState.selectedStoreId == storeId) FontWeight.Bold else FontWeight.Normal
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showStoreDialog = false }) {
+                                Text("Скасувати")
+                            }
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Випічка",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 12.dp)
+                )
+
+                MenuContainer {
+                    val showAll = currentState.showBakingAll
+                    MenuRow(
+                        title = "Показувати всю випічку відразу",
+                        icon = SimiIcons.Baking,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        onClick = { viewModel.setShowBakingAll(!showAll) },
+                        endContent = {
+                            Switch(
+                                checked = showAll,
+                                onCheckedChange = { viewModel.setShowBakingAll(it) },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            )
+                        }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

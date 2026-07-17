@@ -25,7 +25,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch { storage.setUserMode(mode) }
     }
 
-    fun setSelectedStoreId(storeId: String) {
-        viewModelScope.launch { storage.setSelectedStoreId(storeId) }
+    fun setSelectedStore(storeId: String, storeName: String) {
+        viewModelScope.launch { storage.setSelectedStore(storeId, storeName) }
+    }
+
+    fun setShowBakingAll(showBakingAll: Boolean) {
+        viewModelScope.launch { storage.setShowBakingAll(showBakingAll) }
     }
 }

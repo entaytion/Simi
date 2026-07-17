@@ -346,7 +346,7 @@ private fun App(isDarkTheme: Boolean) {
                 }
                 Route.Baking -> {
                         val vm = androidx.lifecycle.viewmodel.compose.viewModel<ua.entaytion.simi.viewmodel.BakingViewModel>()
-                        ua.entaytion.simi.ui.BakingScreen(onBack = { goBack() }, viewModel = vm)
+                        ua.entaytion.simi.ui.BakingScreen(onBack = { goBack() }, viewModel = vm, settingsViewModel = settingsViewModel)
                 }
         }
 }
